@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Laboratorio #3 - Sistema de Inventario Aduanero: Base de Datos Relacional y Agente de IA con n8n</title>
+<style>
+  @page {
+    size: letter;
+    margin: 14mm 16mm 16mm 16mm;
+  }
+
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    font-size: 9pt;
+    line-height: 1.35;
+    color: #1f2937;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+  }
+
+  .page-break {
+    display: none;
+  }
+
+  /* Portada y encabezado */
+  .header-card {
+    border-left: 6px solid #1e40af;
+    background: #f8fafc;
+    padding: 12px 18px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .header-card h1 {
+    margin: 0 0 6px 0;
+    color: #1e3a8a;
+    font-size: 20pt;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .header-card h2 {
+    margin: 0 0 14px 0;
+    color: #3b82f6;
+    font-size: 13pt;
+    font-weight: 500;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 24px;
+    font-size: 9.5pt;
+    color: #4b5563;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 10px;
+  }
+  .meta-grid strong {
+    color: #1e293b;
+  }
+
+  /* Títulos de sección */
+  h2.section-title {
+    color: #1e3a8a;
+    font-size: 11.5pt;
+    border-bottom: 2px solid #3b82f6;
+    padding-bottom: 3px;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  h3.subsection-title {
+    color: #0f766e;
+    font-size: 9.5pt;
+    margin-top: 9px;
+    margin-bottom: 4px;
+  }
+
+  p {
+    margin: 0 0 5px 0;
+    text-align: justify;
+  }
+
+  /* Tablas comparativas */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 6px 0 10px 0;
+    font-size: 8pt;
+  }
+  table th {
+    background: #1e40af;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: left;
+    padding: 4px 8px;
+    border: 1px solid #1e40af;
+  }
+  table td {
+    padding: 3px 8px;
+    border: 1px solid #cbd5e1;
+    vertical-align: top;
+  }
+  table tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+
+  /* Cajas destacadas */
+  .callout {
+    background-color: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 6px 10px;
+    margin: 6px 0;
+    font-size: 8.5pt;
+    border-radius: 0 4px 4px 0;
+  }
+  .callout-aduanas {
+    background-color: #ecfdf5;
+    border-left: 4px solid #10b981;
+    padding: 6px 10px;
+    margin: 6px 0;
+    font-size: 8.5pt;
+    border-radius: 0 4px 4px 0;
+  }
+  .callout strong {
+    color: #1e40af;
+  }
+  .callout-aduanas strong {
+    color: #065f46;
+  }
+
+  /* Listas */
+  ul, ol {
+    margin: 3px 0 6px 16px;
+    padding: 0;
+  }
+  li {
+    margin-bottom: 2px;
+  }
+
+  /* Código */
+  code {
+    font-family: 'Consolas', 'Courier New', monospace;
+    background: #f1f5f9;
+    padding: 1px 3px;
+    border-radius: 3px;
+    font-size: 8pt;
+    color: #0f172a;
+  }
+  pre {
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 7.5pt;
+    overflow-x: auto;
+    margin: 6px 0 8px 0;
+    line-height: 1.3;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    font-size: 8pt;
+    font-weight: 600;
+  }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-green { background: #d1fae5; color: #065f46; }
+  .badge-purple { background: #f3e8ff; color: #6b21a8; }
+</style>
+</head>
+<body>
+
+  <!-- ENCABEZADO FORMAL DEL INFORME -->
+  <div class="header-card">
+    <h1>LABORATORIO #3: SISTEMA DE INVENTARIO ADUANERO</h1>
+    <h2>Base de Datos Relacional y Agente Autónomo de Inteligencia Artificial en n8n</h2>
+    <div class="meta-grid">
+      <div><strong>Asignatura:</strong> Bases de Datos</div>
+      <div><strong>Fecha:</strong> Octubre 2026</div>
+      <div><strong>Estudiante / Autor:</strong> Krishna / Krishna7867s</div>
+      <div><strong>Repositorio Oficial:</strong> https://github.com/krishna7867s/laboratorio-3</div>
+      <div><strong>Gestor Seleccionado:</strong> PostgreSQL 16 (Estándar Empresarial y Cloud Native)</div>
+      <div><strong>Plataforma de Agente:</strong> n8n Workflow Automation (LangChain Agent + PostgreSQL)</div>
+    </div>
+  </div>
+
+  <!-- INTRODUCCIÓN GENERAL -->
+  <p>
+    El comercio internacional contemporáneo moviliza millones de toneladas de mercancías a través de puertos, aeropuertos y pasos fronterizos. Una aduana nacional constituye la primera línea de soberanía tributaria, seguridad sanitaria y control fitosanitario del país. La transición de hojas de cálculo dispersas hacia un <strong>Sistema Gestor de Bases de Datos Relacionales (SGBD)</strong> normalizado, integrado con un <strong>Agente de Inteligencia Artificial autónomo</strong>, erradica los cuellos de botella de mercancía no localizada, inconsistencias arancelarias y lentitud en la fiscalización.
+  </p>
+
+  <!-- ========================================================================= -->
+  <!-- SECCIÓN A: BASES DE DATOS Y SQL -->
+  <!-- ========================================================================= -->
+  <h2 class="section-title">Parte I – A. Fundamentos de Bases de Datos y Lenguaje SQL</h2>
+
+  <h3 class="subsection-title">1. ¿Qué es una base de datos y qué es un Sistema Gestor (SGBD)?</h3>
+  <p>
+    Una <strong>base de datos</strong> es una colección organizada, estructurada y persistente de datos interrelacionados que representan eventos o estados de un dominio del mundo real (por ejemplo, el inventario y fiscalización de una aduana). 
+    Un <strong>Sistema Gestor de Bases de Datos (SGBD o DBMS)</strong> es el software especializado encargado de intermediar entre las aplicaciones/usuarios y el almacenamiento físico en disco. Garantiza la persistencia, concurrencia de miles de operaciones simultáneas, seguridad de accesos y el estricto cumplimiento de las propiedades <strong>ACID</strong>:
+  </p>
+  <ul>
+    <li><strong>Atomicidad (Atomicity):</strong> Una transacción aduanera (ej. despacho y rebaja de stock) se ejecuta en su totalidad o no se ejecuta nada (rollback).</li>
+    <li><strong>Consistencia (Consistency):</strong> Los datos siempre respetan las reglas de negocio (ej. el arancel no puede ser negativo ni exceder el 100%).</li>
+    <li><strong>Aislamiento (Isolation):</strong> Dos inspectores aforando cargamentos distintos no interfieren ni ven estados intermedios inconsistentes.</li>
+    <li><strong>Durabilidad (Durability):</strong> Una vez confirmada una liquidación (commit), la información subsiste incluso ante fallos de energía en el servidor.</li>
+  </ul>
+
+  <h3 class="subsection-title">2. Diferencias entre Bases de Datos Relacionales (SQL) y No Relacionales (NoSQL)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Criterio</th>
+        <th>Bases de Datos Relacionales (SQL)</th>
+        <th>Bases de Datos No Relacionales (NoSQL)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Modelo de Datos</strong></td>
+        <td>Tablas bidimensionales estructuradas con filas (tuplas) y columnas (atributos).</td>
+        <td>Documentos (JSON/BSON), Clave-Valor, Columnas Anchas o Grafos.</td>
+      </tr>
+      <tr>
+        <td><strong>Esquema</strong></td>
+        <td>Esquema rígido estricto (Schema-on-write). Modificaciones requieren DDL estructurado.</td>
+        <td>Esquema flexible o dinámico (Schema-on-read). Admite atributos heterogéneos.</td>
+      </tr>
+      <tr>
+        <td><strong>Integridad y Transacciones</strong></td>
+        <td>Garantías ACID plenas; llaves foráneas y restricciones matemáticas.</td>
+        <td>Consistencia eventual (modelo BASE), prioriza disponibilidad y partición (Teorema CAP).</td>
+      </tr>
+      <tr>
+        <td><strong>Caso de Uso Aduanero</strong></td>
+        <td><strong>Idóneo para inventario, liquidación de aranceles y actas de retención</strong>, donde un error contable o de llave foránea es inaceptable.</td>
+        <td>Adecuado para telemetría IoT de sensores térmicos en contenedores o logs de eventos en tiempo real.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 class="subsection-title">3. Tabla, Registro, Campo y Tipos de Datos Fundamentales</h3>
+  <p>
+    En la teoría relacional (Codd, 1970):
+  </p>
+  <ul>
+    <li><strong>Tabla (Relación):</strong> Estructura nombrada compuesta por un encabezado (metadatos) y un cuerpo. En nuestro sistema: <code>declaracion_aduanera</code>, <code>contenedor</code>, <code>bodega</code>.</li>
+    <li><strong>Registro o Fila (Tupla):</strong> Una instancia única de la entidad que representa una ocurrencia real. Ejemplo: el contenedor <code>MSKU2948102</code> con 18,450 kg de peso bruto.</li>
+    <li><strong>Campo o Columna (Atributo):</strong> La propiedad elemental caracterizada por un nombre y un dominio de valores permitidos.</li>
+    <li><strong>Tipos de datos comunes:</strong> <code>SERIAL/INT</code> (identificadores autoincrementales), <code>VARCHAR(n)</code> (cadenas de longitud variable como números de DUA), <code>DECIMAL(p,s)</code> (números de coma fija para precisión monetaria sin errores de redondeo de punto flotante), <code>DATE/TIMESTAMP</code> (fechas de aforo y movimientos), <code>BOOLEAN</code> (banderas de control).</li>
+  </ul>
+
+  <h3 class="subsection-title">4. Llaves Primarias (PK), Foráneas (FK) y Compuestas</h3>
+  <p>
+    Las llaves constituyen la columna vertebral de la consistencia relacional:
+  </p>
+  <ul>
+    <li><strong>Llave Primaria (PK - Primary Key):</strong> Atributo o conjunto de atributos que identifica unívocamente a cada fila de una tabla. Debe ser <code>NOT NULL</code> y única. Ejemplo: <code>id_declaracion</code> en la tabla <code>declaracion_aduanera</code>.</li>
+    <li><strong>Llave Foránea (FK - Foreign Key):</strong> Atributo de una tabla que hace referencia obligatoria a la llave primaria de otra tabla, impidiendo registros huérfanos. Ejemplo: <code>id_pais_origen</code> en <code>declaracion_aduanera</code> apunta a <code>pais(id_pais)</code>.</li>
+    <li><strong>Llave Compuesta:</strong> Llave primaria integrada por dos o más atributos combinados. En la tabla intermedia <code>detalle_declaracion</code> o en combinaciones lógicas como <code>(id_bodega, id_producto, id_declaracion, ubicacion_pasillo_rack)</code> para asegurar que no se dupliquen registros de stock idénticos en la misma ranura.</li>
+  </ul>
+
+  <div class="page-break"></div>
+
+  <h3 class="subsection-title">5. Tipos de Relaciones Cardinales y su Implementación</h3>
+  <ul>
+    <li><strong>Uno a Uno (1:1):</strong> Cada registro de la Entidad A se asocia a lo sumo con un registro de la Entidad B. Se implementa colocando la PK de una como FK en la otra con una restricción de unicidad (<code>UNIQUE</code>). Ejemplo: Un contenedor refrigerado y su unidad motogeneradora de frío asignada.</li>
+    <li><strong>Uno a Muchos (1:N):</strong> Un registro de la Entidad A se vincula con múltiples registros en la Entidad B, pero cada registro de B pertenece únicamente a uno de A. Se implementa colocando la PK de la tabla padre como FK en la tabla hija. Ejemplo: Un país exportador origina muchas declaraciones aduaneras (<code>pais</code> 1 &rarr; N <code>declaracion_aduanera</code>).</li>
+    <li><strong>Muchos a Muchos (N:M):</strong> Un registro de A se relaciona con varios de B, y viceversa. <em>No puede implementarse directamente en SQL</em>; se descompone obligatoriamente mediante una <strong>tabla asociativa o intermedia</strong> con dos llaves foráneas. En el laboratorio: una <code>declaracion_aduanera</code> declara múltiples <code>producto</code>, y un producto comercial se importa en muchas declaraciones; esto se resuelve con la tabla intermedia <code>detalle_declaracion</code> con atributos propios como cantidad y valor total FOB.</li>
+    <li><strong>Relación Recursiva (Autorreferencial):</strong> Una entidad se relaciona consigo misma. Ejemplo: En la tabla <code>funcionario</code>, el campo <code>id_supervisor</code> es una FK que referencia al <code>id_funcionario</code> de la misma tabla, modelando la jerarquía aduanera (Inspectores &rarr; Supervisores &rarr; Director General).</li>
+  </ul>
+
+  <h3 class="subsection-title">6. Integridad Referencial y Restricciones de Dominio</h3>
+  <p>
+    La <strong>integridad referencial</strong> es la regla que prohíbe la existencia de llaves foráneas que no coincidan con una llave primaria válida. Las restricciones (constraints) aseguran la exactitud del modelo:
+  </p>
+  <ul>
+    <li><code>NOT NULL:</code> Impide campos vacíos en datos obligatorios (ej. número de DUA o fecha).</li>
+    <li><code>UNIQUE:</code> Garantiza que ningún valor se repita en la columna (ej. número de contenedor o NIT/RUC).</li>
+    <li><code>CHECK:</code> Valida que el valor cumpla una expresión booleana estricta (ej. <code>porcentaje_arancel >= 0 AND porcentaje_arancel <= 100</code>).</li>
+    <li><code>DEFAULT:</code> Asigna un valor automático si no se especifica (ej. <code>CURRENT_TIMESTAMP</code> o <code>estado = 'Retenida'</code>).</li>
+    <li><strong>Acciones en Cascada:</strong> <code>ON DELETE RESTRICT</code> impide borrar un país si tiene declaraciones registradas; <code>ON DELETE CASCADE</code> borra automáticamente los detalles de una declaración si la declaración padre fuese eliminada en una depuración legal.</li>
+  </ul>
+
+  <h3 class="subsection-title">7. DDL vs DML y Comandos SQL Fundamentales</h3>
+  <p>
+    SQL se divide funcionalmente en dos sublenguajes:
+  </p>
+  <ul>
+    <li><strong>DDL (Data Definition Language):</strong> Define y modifica la estructura de la base de datos.
+      <ul>
+        <li><code>CREATE TABLE:</code> Define esquemas, columnas y restricciones.</li>
+        <li><code>ALTER TABLE:</code> Añade o modifica columnas e índices.</li>
+        <li><code>DROP TABLE:</code> Elimina estructuras completas de la base de datos.</li>
+      </ul>
+    </li>
+    <li><strong>DML (Data Manipulation Language):</strong> Opera sobre los datos contenidos dentro de las tablas.
+      <ul>
+        <li><code>INSERT INTO:</code> Inserta nuevas tuplas de mercancías y despachos.</li>
+        <li><code>SELECT:</code> Consulta y filtra conjuntos de resultados mediante proyecciones y selecciones.</li>
+        <li><code>UPDATE:</code> Modifica valores existentes (ej. actualizar estado de 'Retenido' a 'Liberado').</li>
+        <li><code>DELETE:</code> Elimina registros específicos bajo condiciones de negocio.</li>
+        <li><code>JOIN (INNER, LEFT, RIGHT, FULL):</code> Combina columnas de dos o más tablas enlazadas por sus llaves foráneas. En el inventario aduanero, un <code>INNER JOIN</code> entre <code>inventario</code>, <code>bodega</code> y <code>producto</code> permite responder qué mercancías están físicamente en la Bodega 2.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3 class="subsection-title">8. Normalización de Bases de Datos (1FN, 2FN y 3FN)</h3>
+  <p>
+    La normalización es la técnica formal de diseño relacional orientada a minimizar la redundancia de datos y prevenir anomalías de inserción, actualización y borrado.
+  </p>
+  <div class="callout">
+    <strong>Ejemplo de Normalización en el Caso Aduanero:</strong><br>
+    Imagine una hoja de cálculo no normalizada donde cada fila contiene: <em>[Numero_DUA, Fecha, Mercancias_Separadas_Por_Comas, Nombre_Bodega, Capacidad_Bodega, Nombre_Importador, Telefono_Importador]</em>.
+  </div>
+  <ol>
+    <li><strong>Primera Forma Normal (1FN):</strong> Exige <em>atomicidad</em> en todos los atributos y ausencia de grupos repetitivos. La celda con múltiples mercancías debe dividirse en filas individuales, asignando una clave primaria única.</li>
+    <li><strong>Segunda Forma Normal (2FN):</strong> Estando en 1FN, ningún atributo no clave debe depender parcialmente de una clave primaria compuesta. Los datos de la bodega o del importador no dependen de la combinación (DUA + Producto), por lo que deben extraerse a sus propias entidades maestras (<code>bodega</code> e <code>importador_exportador</code>).</li>
+    <li><strong>Tercera Forma Normal (3FN):</strong> Estando en 2FN, ningún atributo no clave debe depender transitivamente de la clave primaria (X &rarr; Y &rarr; Z). Por ejemplo, si en la tabla de productos guardáramos el porcentaje de arancel y la descripción del capítulo arancelario, estos dependerían del código de partida, no del producto en sí. Al separar <code>categoria_arancelaria</code> de <code>producto</code>, se alcanza la 3FN perfecta.</li>
+  </ol>
+
+  <h3 class="subsection-title">9. Diagrama Entidad-Relación (DER) y Notaciones Chen vs Pata de Gallo</h3>
+  <p>
+    El DER es la representación gráfica conceptual del modelo de datos. Existen dos notaciones primarias:
+  </p>
+  <ul>
+    <li><strong>Notación Peter Chen (1976):</strong> Utiliza rectángulos para entidades, rombos para representar las relaciones con sus nombres verbales, elipses para atributos y líneas con etiquetas de cardinalidad (1:1, 1:N, N:M). Es altamente formal y didáctica para la fase conceptual.</li>
+    <li><strong>Notación Pata de Gallo (Crow's Foot):</strong> Notación moderna estándar de ingeniería (usada en draw.io, dbdiagram y Oracle). Representa entidades como cajas divididas en encabezado (PK) y cuerpo (atributos y tipos). Los extremos de las líneas usan símbolos explícitos: círculo (cero/opcional), barra transversal (uno/obligatorio) y tres líneas divergentes que semejan la pata de un ave para representar "muchos" (&infin;). Es la notación adoptada en nuestro proyecto por su correspondencia directa 1:1 con el código SQL físico.</li>
+  </ul>
+
+  <div class="page-break"></div>
+
+  <!-- ========================================================================= -->
+  <!-- SECCIÓN B: GESTORES DE BASES DE DATOS -->
+  <!-- ========================================================================= -->
+  <h2 class="section-title">Parte I – B. Comparación y Justificación de Gestores de Bases de Datos</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Característica</th>
+        <th>SQLite</th>
+        <th>MySQL (InnoDB)</th>
+        <th>PostgreSQL 16</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Arquitectura</strong></td>
+        <td>Embebido en un archivo local sin proceso servidor independiente.</td>
+        <td>Cliente-Servidor tradicional multihilo.</td>
+        <td>Cliente-Servidor multiproceso robusto y extensible.</td>
+      </tr>
+      <tr>
+        <td><strong>Tipado de Datos</strong></td>
+        <td>Tipado dinámico / afín (permite guardar texto en enteros).</td>
+        <td>Tipado estático con conversiones permisivas según sql_mode.</td>
+        <td><strong>Tipado fuerte y estricto</strong> (garantiza exactitud matemática).</td>
+      </tr>
+      <tr>
+        <td><strong>Concurrencia</strong></td>
+        <td>Bloqueo a nivel de archivo completo en escrituras (no apto para alto tráfico).</td>
+        <td>Bloqueo a nivel de fila mediante motor InnoDB.</td>
+        <td><strong>MVCC avanzado</strong> (Multi-Version Concurrency Control) sin bloqueos entre lecturas y escrituras.</td>
+      </tr>
+      <tr>
+        <td><strong>Integración con n8n</strong></td>
+        <td>Requiere nodos de ejecución de scripts o módulos comunitarios.</td>
+        <td>Nodo nativo <code>n8n-nodes-base.mySql</code> estándar.</td>
+        <td><strong>Nodo nativo robusto <code>@n8n/n8n-nodes-langchain.toolPostgres</code> con soporte SSL</strong>.</td>
+      </tr>
+      <tr>
+        <td><strong>Despliegue Cloud</strong></td>
+        <td>No aplicable en servicios serverless compartidos.</td>
+        <td>Alojable en AWS RDS, PlanetScale, XAMPP local.</td>
+        <td>Alojable gratuitamente en servicios Cloud Native como <strong>Supabase</strong> o <strong>Neon</strong> con 1 clic.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Justificación Técnica de Elección: ¿Por qué elegimos PostgreSQL?</strong><br>
+    Para el Sistema de Inventario Aduanero seleccionamos <strong>PostgreSQL</strong> por tres razones determinantes:
+    <ol>
+      <li><strong>Precisión y Restricciones Numéricas:</strong> En auditoría aduanera, la liquidación de tributos y aranceles sobre millones de dólares exige tipos como <code>DECIMAL(14,2)</code> y operadores de agregación nativos que jamás generen redondeos espurios.</li>
+      <li><strong>Seguridad para Agentes de IA:</strong> PostgreSQL cuenta con el sistema de roles más granular de la industria. Permite crear en tres líneas un rol de solo lectura (<code>n8n_readonly</code>) con privilegios exclusivos de <code>GRANT SELECT</code>, blindando el sistema contra inyecciones destructivas.</li>
+      <li><strong>Conectividad Inmediata con n8n:</strong> n8n posee soporte de primera clase para Postgres tanto en sus nodos estándar como en el ecosistema de IA (LangChain Database Tool), permitiendo al agente inspeccionar esquemas y consultar datos en milisegundos con credenciales seguras.</li>
+    </ol>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SECCIÓN C: n8n Y AGENTES DE INTELIGENCIA ARTIFICIAL -->
+  <!-- ========================================================================= -->
+  <h2 class="section-title">Parte I – C. Fundamentos de n8n y Agentes Autónomos de IA</h2>
+
+  <h3 class="subsection-title">1. ¿Qué es n8n y qué es la automatización de flujos (Workflows)?</h3>
+  <p>
+    <strong>n8n</strong> es una plataforma de automatización de flujos de trabajo (workflows) de código abierto y extensible. Permite interconectar APIs, servicios web, bases de datos y modelos de lenguaje mediante una interfaz gráfica basada en nodos. A diferencia de plataformas cerradas como Zapier o Make, n8n puede ser autoalojado (self-hosted) garantizando que la información aduanera crítica nunca salga de los servidores gubernamentales o de la infraestructura controlada.
+  </p>
+
+  <h3 class="subsection-title">2. Nodo, Trigger y Credencial en n8n</h3>
+  <ul>
+    <li><strong>Nodo:</strong> Bloque de construcción elemental que recibe datos JSON de entrada, ejecuta una operación específica (consultar Postgres, ejecutar un LLM, transformar un array) y emite un resultado.</li>
+    <li><strong>Trigger (Disparador):</strong> Nodo inicial que despierta y arranca la ejecución del flujo. En nuestro proyecto, el nodo <code>Chat Trigger</code> captura en tiempo real el mensaje escrito por el funcionario aduanero.</li>
+    <li><strong>Credencial:</strong> Entidad cifrada y segura dentro de n8n donde se almacenan contraseñas de bases de datos, tokens de conexión y claves de API (como OpenAI o Gemini). Los nodos referencian la credencial sin exponer jamás la contraseña en texto plano en el flujo exportado.</li>
+  </ul>
+
+  <h3 class="subsection-title">3. Agente de IA vs Chatbot Tradicional</h3>
+  <p>
+    Un <strong>chatbot tradicional</strong> se basa en flujos de decisión estáticos o árboles condicionales predefinidos (IF/ELSE) con coincidencia de palabras clave; si el usuario formula una pregunta fuera de su libreto, el bot se quiebra o devuelve respuestas genéricas.
+    En contraste, un <strong>Agente de Inteligencia Artificial</strong> opera bajo una arquitectura de <em>Razonamiento y Acción (ReAct - Reasoning and Acting)</em>: recibe la pregunta en lenguaje natural, analiza qué información le falta, decide autónomamente qué herramienta utilizar (por ejemplo, consultar la base de datos con una sentencia SQL específica), evalúa el resultado retornado por el motor y elabora una respuesta humana coherente.
+  </p>
+
+  <h3 class="subsection-title">4. Modelo de Lenguaje (LLM) y "Herramientas" (Tools) de un Agente</h3>
+  <p>
+    El <strong>LLM (Large Language Model)</strong> actúa como el "cerebro" cognitivo del agente: comprende la semántica del lenguaje natural, infiere la intención del usuario y formula consultas estructuradas. Sin embargo, un LLM aislado sufre de alucinaciones y desconoce el inventario real de la aduana.
+    Las <strong>Herramientas (Tools)</strong> son interfaces de software que extienden las capacidades del LLM permitiéndole interactuar con el mundo exterior. Mediante la capacidad de <em>Tool Calling (Llamada a Funciones)</em>, el modelo emite un llamado estructurado indicando la consulta SQL que debe ejecutarse. La herramienta de base de datos ejecuta el query sobre PostgreSQL y devuelve el conjunto de tuplas en JSON al LLM para que este formule su conclusión.
+  </p>
+
+  <h3 class="subsection-title">5. Consulta Segura a Bases de Datos por Agentes de IA</h3>
+  <p>
+    Conectar un modelo generativo a una base de datos empresarial requiere blindajes de ciberseguridad estrictos bajo el <strong>Principio de Menor Privilegio</strong>:
+  </p>
+  <ul>
+    <li><strong>Rol Exclusivo de Solo Lectura:</strong> Se crea un usuario de base de datos (<code>n8n_readonly</code>) que únicamente posee el privilegio <code>GRANT SELECT</code>. No puede ejecutar <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>DROP</code> ni <code>ALTER</code> bajo ninguna circunstancia.</li>
+    <li><strong>Instrucciones de Sistema (System Prompt Defensivo):</strong> El prompt del agente le prohíbe taxativamente formular sentencias de mutación de datos.</li>
+    <li><strong>Límites de Resultados (LIMIT):</strong> Todas las consultas generadas por el agente deben incluir cláusulas <code>LIMIT</code> para prevenir ataques de denegación de servicio (DDoS) por consumo de memoria al intentar volcar tablas de millones de registros.</li>
+  </ul>
+
+  <div class="page-break"></div>
+
+  <!-- ========================================================================= -->
+  <!-- SECCIÓN D: DOMINIO ADUANERO -->
+  <!-- ========================================================================= -->
+  <h2 class="section-title">Parte I – D. El Dominio de Negocio Aduanero y Comercio Exterior</h2>
+
+  <h3 class="subsection-title">1. ¿Qué es una Aduana y qué es una Declaración Aduanera (DUA)?</h3>
+  <p>
+    La <strong>aduana</strong> es un organismo del Estado encargado de controlar y fiscalizar el tráfico internacional de mercancías, personas y medios de transporte que ingresan o salen del territorio aduanero nacional, así como de liquidar los tributos e impuestos correspondientes.
+    La <strong>Declaración Aduanera</strong> (conocida como <strong>DUA</strong> – Documento Único Aduanero, o Pedimento en México) es el documento legal mediante el cual el consignatario o importador formaliza ante la autoridad aduanera la destinación de sus mercancías, certificando su naturaleza, cantidad, valor CIF/FOB, país de origen y régimen aplicable.
+  </p>
+
+  <h3 class="subsection-title">2. Partida Arancelaria (Sistema Armonizado) y Aranceles</h3>
+  <ul>
+    <li><strong>Sistema Armonizado (SA):</strong> Nomenclatura universal de seis dígitos auspiciada por la Organización Mundial de Aduanas (OMA) para clasificar todas las mercancías transferibles del mundo. Consta de Capítulos (2 primeros dígitos), Partidas (4 dígitos) y Subpartidas (6 a 10 dígitos). Ejemplo: <code>8471.30.00</code> corresponde a computadoras portátiles (laptops) y tablets.</li>
+    <li><strong>Arancel:</strong> Tributo fiscal que grava las importaciones y exportaciones. Puede ser <em>Ad-Valorem</em> (un porcentaje sobre el valor aduanero CIF de la mercancía, ej. 15% sobre televisores) o <em>Específico</em> (un monto monetario fijo por unidad física de medida, ej. $2.00 por kilogramo neto).</li>
+  </ul>
+
+  <h3 class="subsection-title">3. Regímenes Aduaneros Fundamentales</h3>
+  <p>
+    El régimen aduanero determina el tratamiento legal y tributario que recibirá la carga al ingresar al territorio:
+  </p>
+  <ul>
+    <li><strong>Importación Definitiva:</strong> Ingreso de mercancías procedentes del exterior para permanecer en el territorio aduanero por tiempo ilimitado, previo pago de todos los tributos arancelarios y cumplimiento de requisitos sanitarios/técnicos.</li>
+    <li><strong>Exportación Definitiva:</strong> Salida legal de mercancías nacionales o nacionalizadas para su consumo final en el extranjero. Usualmente exenta de gravámenes arancelarios para incentivar la economía.</li>
+    <li><strong>Tránsito Aduanero:</strong> Régimen bajo el cual las mercancías circulan por el territorio nacional bajo control de la aduana, desde una aduana de entrada hasta una de salida, con destino a un tercer país sin causar pago de tributos (ej. carga procedente de Colombia con destino a Honduras que cruza el país).</li>
+    <li><strong>Depósito Aduanero (Almacén Fiscal):</strong> Régimen que permite almacenar mercancías extranjeras en depósitos autorizados sin el pago inmediato de impuestos de importación, permitiendo diferir el pago hasta el momento del retiro o nacionalización parcial.</li>
+  </ul>
+
+  <h3 class="subsection-title">4. El Agente Aduanal (Broker) y su Rol de Fe Pública</h3>
+  <p>
+    El <strong>agente aduanal</strong> es la persona física o jurídica debidamente autorizada por el Ministerio de Hacienda y la Dirección General de Aduanas que actúa como auxiliar de la función pública aduanera. Es el representante legal de los importadores y exportadores ante el fisco. Su rol es crítico: certifica la correcta clasificación arancelaria de las mercancías, elabora y firma el DUA bajo fe pública, y asume responsabilidad tributaria solidaria por cualquier falsedad u omisión en la valoración o tributos liquidados.
+  </p>
+
+  <!-- ========================================================================= -->
+  <!-- SECCIÓN E: DOCUMENTACIÓN DEL USO DE INTELIGENCIA ARTIFICIAL -->
+  <!-- ========================================================================= -->
+  <h2 class="section-title">Parte I – E. Documentación del Uso de Inteligencia Artificial</h2>
+  <div class="callout-aduanas">
+    <strong>Transparencia Académica:</strong> En concordancia con los lineamientos del Laboratorio #3, se documentan las herramientas, prompts y aprendizajes obtenidos durante el proceso de investigación, diseño relacional y desarrollo de software.
+  </div>
+
+  <p><strong>1. Herramientas de IA Utilizadas:</strong></p>
+  <ul>
+    <li><strong>Antigravity AI / Gemini 3.8 Flash:</strong> Utilizado como asistente de arquitectura de software, validación relacional de esquemas en 3FN, generación sintética de datos aduaneros realistas bajo la norma ISO 6346 y verificación de sintaxis SQL.</li>
+    <li><strong>GitHub Copilot / CLI Tools:</strong> Utilizado para la estructuración y formateo del archivo de flujo JSON de n8n compatible con el estándar LangChain.</li>
+  </ul>
+
+  <p><strong>2. Ejemplos de Prompts Específicos Redactados:</strong></p>
+  <pre><code>PROMPT 1 (Modelado Relacional y Normalización):
+"Actúa como un arquitecto senior de bases de datos aduaneras. Diseña un esquema en 3FN para un
+sistema de control de inventario aduanero con al menos 12 entidades que resuelva la relación N:M entre
+declaraciones aduaneras y productos mediante una tabla intermedia con cantidades y valores FOB,
+e incluya una relación recursiva en funcionarios para supervisión jerárquica."
+
+PROMPT 2 (Generación de Datos Coherentes con Códigos Reales):
+"Genera 16 registros por tabla para la base de datos de aduana. Las partidas arancelarias deben
+corresponder al Sistema Armonizado real (ej. 8471 para laptops, 8517 para celulares), los contenedores
+deben usar prefijos estándar ISO 6346 (MSKU, CMAU, COSU) y debe haber mercancías retenidas de China en
+la Bodega 2 para poder validar la consulta del agente de IA."
+
+PROMPT 3 (System Prompt de Seguridad para n8n):
+"Redacta un System Prompt defensivo para un agente autónomo de IA conectado a PostgreSQL en n8n.
+El agente debe entender que solo puede emitir sentencias SELECT, debe tener mapeado el diccionario de datos
+de las 13 tablas y debe responder en lenguaje natural claro y conciso a funcionarios de aduana."</code></pre>
+
+  <p><strong>3. Aprendizajes y Reflexión Crítica:</strong></p>
+  <p>
+    El uso de la IA permitió acelerar significativamente la generación de datos de prueba realistas y la detección temprana de incompatibilidades de sintaxis entre gestores (por ejemplo, el tratamiento de secuencias autoincrementales <code>SERIAL</code> en PostgreSQL frente a <code>AUTO_INCREMENT</code> en MySQL). No obstante, fue imprescindible la supervisión humana experta para auditar la coherencia de las llaves foráneas: un modelo de IA puede generar llaves huérfanas si no se definen previamente los identificadores exactos de las tablas maestras. La IA funcionó como un catalizador de aprendizaje, obligándonos a comprender a fondo cada concepto para poder validar críticamente el resultado.
+  </p>
+
+  <!-- ========================================================================= -->
+  <!-- SECCIÓN F: FUENTES Y BIBLIOGRAFÍA -->
+  <!-- ========================================================================= -->
+  <h2 class="section-title">Parte I – F. Fuentes Consultadas y Bibliografía</h2>
+  <ol>
+    <li><strong>Silberschatz, A., Korth, H. F., & Sudarshan, S. (2020).</strong> <em>Database System Concepts</em> (7ma ed.). McGraw-Hill Education.</li>
+    <li><strong>Elmasri, R., & Navathe, S. B. (2017).</strong> <em>Fundamentals of Database Systems</em> (7ma ed.). Pearson.</li>
+    <li><strong>Organización Mundial de Aduanas - OMA (WCO). (2022).</strong> <em>Nomenclatura del Sistema Armonizado de Designación y Codificación de Mercancías</em>. Bruselas, Bélgica.</li>
+    <li><strong>PostgreSQL Global Development Group. (2024).</strong> <em>PostgreSQL 16 Documentation: Concurrency Control, Data Definition and Privileges</em>. https://www.postgresql.org/docs/</li>
+    <li><strong>n8n Documentation. (2024).</strong> <em>Advanced AI Agents and LangChain Integration in n8n</em>. https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.agent/</li>
+  </ol>
+
+</body>
+</html>

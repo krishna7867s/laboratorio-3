@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Diagrama Entidad-Relación - Sistema de Inventario Aduanero</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    background: #0f172a;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #f8fafc;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #334155;
+    padding-bottom: 16px;
+  }
+  .header h1 {
+    margin: 0 0 6px 0;
+    font-size: 24px;
+    color: #38bdf8;
+    letter-spacing: -0.5px;
+  }
+  .header p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 13px;
+  }
+  .badges-summary {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .pill {
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .pill-blue { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+  .pill-green { background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); }
+  .pill-purple { background: rgba(192, 132, 252, 0.15); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.4); }
+  .pill-amber { background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.4); }
+
+  .erd-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .entity-card {
+    background: #1e293b;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .entity-header {
+    background: #0284c7;
+    color: #ffffff;
+    padding: 8px 12px;
+    font-weight: 700;
+    font-size: 12.5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #0369a1;
+  }
+  .entity-header.intermedia { background: #7c3aed; border-bottom: 2px solid #6d28d9; }
+  .entity-header.recursiva { background: #059669; border-bottom: 2px solid #047857; }
+  .entity-header.transaccional { background: #ea580c; border-bottom: 2px solid #c2410c; }
+  .entity-type {
+    font-size: 9px;
+    background: rgba(255,255,255,0.25);
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  .entity-body {
+    padding: 6px 10px;
+    font-size: 10px;
+    flex: 1;
+  }
+  .attr-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+    border-bottom: 1px solid #273549;
+  }
+  .attr-row:last-child {
+    border-bottom: none;
+  }
+  .attr-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Consolas', monospace;
+  }
+  .attr-type {
+    color: #94a3b8;
+    font-size: 9px;
+    font-family: 'Consolas', monospace;
+  }
+  .tag {
+    font-size: 8px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+  }
+  .tag-pk { background: #ef4444; color: #fff; }
+  .tag-fk { background: #3b82f6; color: #fff; }
+  .tag-rec { background: #10b981; color: #fff; }
+
+  /* Relaciones explicadas */
+  .relations-panel {
+    margin-top: 24px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .relations-panel h3 {
+    margin: 0 0 10px 0;
+    color: #38bdf8;
+    font-size: 14px;
+  }
+  .relations-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    font-size: 10px;
+    color: #cbd5e1;
+  }
+  .rel-item {
+    background: #0f172a;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-left: 3px solid #38bdf8;
+  }
+  .rel-item strong { color: #f1f5f9; }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>DIAGRAMA ENTIDAD-RELACIÓN (DER) - SISTEMA DE INVENTARIO ADUANERO</h1>
+    <p>Laboratorio #3 | Bases de Datos Relacionales | 13 Entidades en 3ra Forma Normal (3FN)</p>
+    <div class="badges-summary">
+      <span class="pill pill-blue">13 Entidades con PK</span>
+      <span class="pill pill-purple">Relación N:M Resuelta (detalle_declaracion)</span>
+      <span class="pill pill-green">Relación Recursiva Jerárquica (funcionario &rarr; supervisor)</span>
+      <span class="pill pill-amber">Relaciones 1:N Integradas y Tipado Estricto</span>
+    </div>
+  </div>
+
+  <div class="erd-grid">
+
+    <!-- 1. PAIS -->
+    <div class="entity-card">
+      <div class="entity-header">
+        <span>PAIS</span>
+        <span class="entity-type">Catálogo</span>
+      </div>
+      <div class="entity-body">
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-pk">PK</span> id_pais</span><span class="attr-type">SERIAL</span></div>
+        <div class="attr-row"><span class="attr-name">nombre</span><span class="attr-type">VARCHAR(80) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name">codigo_iso</span><span class="attr-type">CHAR(2) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name">codigo_iso3</span><span class="attr-type">CHAR(3) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name">continente</span><span class="attr-type">VARCHAR(30) [CHK]</span></div>
+        <div class="attr-row"><span class="attr-name">activo</span><span class="attr-type">BOOLEAN</span></div>
+      </div>
+    </div>
+
+    <!-- 2. IMPORTADOR_EXPORTADOR -->
+    <div class="entity-card">
+      <div class="entity-header">
+        <span>IMPORTADOR_EXPORTADOR</span>
+        <span class="entity-type">Maestra</span>
+      </div>
+      <div class="entity-body">
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-pk">PK</span> id_operador</span><span class="attr-type">SERIAL</span></div>
+        <div class="attr-row"><span class="attr-name">nombre_razon_social</span><span class="attr-type">VARCHAR(150)</span></div>
+        <div class="attr-row"><span class="attr-name">nit_ruc</span><span class="attr-type">VARCHAR(25) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name">tipo_operador</span><span class="attr-type">VARCHAR(25)</span></div>
+        <div class="attr-row"><span class="attr-name">direccion</span><span class="attr-type">VARCHAR(200)</span></div>
+        <div class="attr-row"><span class="attr-name">telefono</span><span class="attr-type">VARCHAR(30)</span></div>
+        <div class="attr-row"><span class="attr-name">correo</span><span class="attr-type">VARCHAR(100) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name">calificacion_riesgo</span><span class="attr-type">VARCHAR(15)</span></div>
+      </div>
+    </div>
+
+    <!-- 3. AGENTE_ADUANAL -->
+    <div class="entity-card">
+      <div class="entity-header">
+        <span>AGENTE_ADUANAL</span>
+        <span class="entity-type">Maestra</span>
+      </div>
+      <div class="entity-body">
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-pk">PK</span> id_agente</span><span class="attr-type">SERIAL</span></div>
+        <div class="attr-row"><span class="attr-name">nombre_completo</span><span class="attr-type">VARCHAR(120)</span></div>
+        <div class="attr-row"><span class="attr-name">numero_licencia</span><span class="attr-type">VARCHAR(30) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name">telefono</span><span class="attr-type">VARCHAR(30)</span></div>
+        <div class="attr-row"><span class="attr-name">correo</span><span class="attr-type">VARCHAR(100) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name">agencia_aduanal</span><span class="attr-type">VARCHAR(150)</span></div>
+        <div class="attr-row"><span class="attr-name">estado_licencia</span><span class="attr-type">VARCHAR(20)</span></div>
+      </div>
+    </div>
+
+    <!-- 4. CATEGORIA_ARANCELARIA -->
+    <div class="entity-card">
+      <div class="entity-header">
+        <span>CATEGORIA_ARANCELARIA</span>
+        <span class="entity-type">Catálogo SA</span>
+      </div>
+      <div class="entity-body">
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-pk">PK</span> id_categoria</span><span class="attr-type">SERIAL</span></div>
+        <div class="attr-row"><span class="attr-name">codigo_partida</span><span class="attr-type">VARCHAR(12) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name">capitulo</span><span class="attr-type">VARCHAR(4)</span></div>
+        <div class="attr-row"><span class="attr-name">descripcion_oficial</span><span class="attr-type">VARCHAR(255)</span></div>
+        <div class="attr-row"><span class="attr-name">porcentaje_arancel</span><span class="attr-type">DECIMAL(5,2)</span></div>
+        <div class="attr-row"><span class="attr-name">requiere_permiso</span><span class="attr-type">BOOLEAN</span></div>
+      </div>
+    </div>
+
+    <!-- 5. PRODUCTO -->
+    <div class="entity-card">
+      <div class="entity-header">
+        <span>PRODUCTO</span>
+        <span class="entity-type">Maestra</span>
+      </div>
+      <div class="entity-body">
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-pk">PK</span> id_producto</span><span class="attr-type">SERIAL</span></div>
+        <div class="attr-row"><span class="attr-name">codigo_sku</span><span class="attr-type">VARCHAR(30) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name">descripcion</span><span class="attr-type">VARCHAR(200)</span></div>
+        <div class="attr-row"><span class="attr-name">unidad_medida</span><span class="attr-type">VARCHAR(20)</span></div>
+        <div class="attr-row"><span class="attr-name">valor_unitario_fob_ref</span><span class="attr-type">DECIMAL(12,2)</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_categoria</span><span class="attr-type">INT &rarr; CATEGORIA</span></div>
+      </div>
+    </div>
+
+    <!-- 6. DECLARACION_ADUANERA -->
+    <div class="entity-card">
+      <div class="entity-header transaccional">
+        <span>DECLARACION_ADUANERA</span>
+        <span class="entity-type">Transaccional</span>
+      </div>
+      <div class="entity-body">
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-pk">PK</span> id_declaracion</span><span class="attr-type">SERIAL</span></div>
+        <div class="attr-row"><span class="attr-name">numero_dua</span><span class="attr-type">VARCHAR(30) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name">fecha_registro</span><span class="attr-type">DATE</span></div>
+        <div class="attr-row"><span class="attr-name">regimen</span><span class="attr-type">VARCHAR(30) [CHK]</span></div>
+        <div class="attr-row"><span class="attr-name">canal_aforo</span><span class="attr-type">VARCHAR(15) [CHK]</span></div>
+        <div class="attr-row"><span class="attr-name">estado</span><span class="attr-type">VARCHAR(20)</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_operador</span><span class="attr-type">INT &rarr; OPERADOR</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_agente</span><span class="attr-type">INT &rarr; AGENTE</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_pais_origen</span><span class="attr-type">INT &rarr; PAIS</span></div>
+      </div>
+    </div>
+
+    <!-- 7. DETALLE_DECLARACION (INTERMEDIA N:M) -->
+    <div class="entity-card">
+      <div class="entity-header intermedia">
+        <span>DETALLE_DECLARACION</span>
+        <span class="entity-type">Intermedia N:M</span>
+      </div>
+      <div class="entity-body">
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-pk">PK</span> id_detalle</span><span class="attr-type">SERIAL</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_declaracion</span><span class="attr-type">INT &rarr; DECLARACION</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_producto</span><span class="attr-type">INT &rarr; PRODUCTO</span></div>
+        <div class="attr-row"><span class="attr-name">cantidad</span><span class="attr-type">NUMERIC(12,2)</span></div>
+        <div class="attr-row"><span class="attr-name">valor_unitario_usd</span><span class="attr-type">DECIMAL(12,2)</span></div>
+        <div class="attr-row"><span class="attr-name">valor_total_fob</span><span class="attr-type">DECIMAL(14,2)</span></div>
+        <div class="attr-row"><span class="attr-name">arancel_aplicado_usd</span><span class="attr-type">DECIMAL(12,2)</span></div>
+      </div>
+    </div>
+
+    <!-- 8. CONTENEDOR -->
+    <div class="entity-card">
+      <div class="entity-header">
+        <span>CONTENEDOR</span>
+        <span class="entity-type">Logística</span>
+      </div>
+      <div class="entity-body">
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-pk">PK</span> id_contenedor</span><span class="attr-type">SERIAL</span></div>
+        <div class="attr-row"><span class="attr-name">numero_contenedor</span><span class="attr-type">VARCHAR(15) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name">tipo</span><span class="attr-type">VARCHAR(25)</span></div>
+        <div class="attr-row"><span class="attr-name">peso_tara_kg</span><span class="attr-type">DECIMAL(8,2)</span></div>
+        <div class="attr-row"><span class="attr-name">peso_bruto_kg</span><span class="attr-type">DECIMAL(9,2)</span></div>
+        <div class="attr-row"><span class="attr-name">numero_sello_seguridad</span><span class="attr-type">VARCHAR(30) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_declaracion</span><span class="attr-type">INT &rarr; DECLARACION</span></div>
+      </div>
+    </div>
+
+    <!-- 9. BODEGA -->
+    <div class="entity-card">
+      <div class="entity-header">
+        <span>BODEGA</span>
+        <span class="entity-type">Instalación</span>
+      </div>
+      <div class="entity-body">
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-pk">PK</span> id_bodega</span><span class="attr-type">SERIAL</span></div>
+        <div class="attr-row"><span class="attr-name">codigo_bodega</span><span class="attr-type">VARCHAR(15) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name">nombre</span><span class="attr-type">VARCHAR(100)</span></div>
+        <div class="attr-row"><span class="attr-name">tipo_deposito</span><span class="attr-type">VARCHAR(40)</span></div>
+        <div class="attr-row"><span class="attr-name">ubicacion_terminal</span><span class="attr-type">VARCHAR(120)</span></div>
+        <div class="attr-row"><span class="attr-name">capacidad_max_pallets</span><span class="attr-type">INT</span></div>
+        <div class="attr-row"><span class="attr-name">temperatura_controlada</span><span class="attr-type">BOOLEAN</span></div>
+      </div>
+    </div>
+
+    <!-- 10. INVENTARIO -->
+    <div class="entity-card">
+      <div class="entity-header intermedia">
+        <span>INVENTARIO</span>
+        <span class="entity-type">Stock Fiscal</span>
+      </div>
+      <div class="entity-body">
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-pk">PK</span> id_inventario</span><span class="attr-type">SERIAL</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_bodega</span><span class="attr-type">INT &rarr; BODEGA</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_producto</span><span class="attr-type">INT &rarr; PRODUCTO</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_declaracion</span><span class="attr-type">INT &rarr; DECLARACION</span></div>
+        <div class="attr-row"><span class="attr-name">cantidad_actual</span><span class="attr-type">NUMERIC(12,2)</span></div>
+        <div class="attr-row"><span class="attr-name">ubicacion_pasillo_rack</span><span class="attr-type">VARCHAR(30)</span></div>
+        <div class="attr-row"><span class="attr-name">estado_stock</span><span class="attr-type">VARCHAR(20) [CHK]</span></div>
+      </div>
+    </div>
+
+    <!-- 11. MOVIMIENTO_INVENTARIO -->
+    <div class="entity-card">
+      <div class="entity-header transaccional">
+        <span>MOVIMIENTO_INVENTARIO</span>
+        <span class="entity-type">Kardex Trazabilidad</span>
+      </div>
+      <div class="entity-body">
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-pk">PK</span> id_movimiento</span><span class="attr-type">SERIAL</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_inventario</span><span class="attr-type">INT &rarr; INVENTARIO</span></div>
+        <div class="attr-row"><span class="attr-name">tipo_movimiento</span><span class="attr-type">VARCHAR(25)</span></div>
+        <div class="attr-row"><span class="attr-name">fecha_movimiento</span><span class="attr-type">TIMESTAMP</span></div>
+        <div class="attr-row"><span class="attr-name">cantidad</span><span class="attr-type">NUMERIC(12,2)</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_bodega_origen</span><span class="attr-type">INT (NULL)</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_bodega_destino</span><span class="attr-type">INT (NULL)</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> autorizado_por</span><span class="attr-type">INT &rarr; FUNCIONARIO</span></div>
+      </div>
+    </div>
+
+    <!-- 12. FUNCIONARIO (RECURSIVA) -->
+    <div class="entity-card">
+      <div class="entity-header recursiva">
+        <span>FUNCIONARIO</span>
+        <span class="entity-type">Recursiva Jerárquica</span>
+      </div>
+      <div class="entity-body">
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-pk">PK</span> id_funcionario</span><span class="attr-type">SERIAL</span></div>
+        <div class="attr-row"><span class="attr-name">codigo_empleado</span><span class="attr-type">VARCHAR(20) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name">nombre_completo</span><span class="attr-type">VARCHAR(120)</span></div>
+        <div class="attr-row"><span class="attr-name">cargo</span><span class="attr-type">VARCHAR(60)</span></div>
+        <div class="attr-row"><span class="attr-name">departamento</span><span class="attr-type">VARCHAR(60)</span></div>
+        <div class="attr-row"><span class="attr-name">correo_institucional</span><span class="attr-type">VARCHAR(100) [UQ]</span></div>
+        <div class="attr-row"><span class="attr-name"><span class="tag tag-rec">FK*</span> id_supervisor</span><span class="attr-type">INT &rarr; FUNCIONARIO</span></div>
+      </div>
+    </div>
+
+    <!-- 13. INSPECCION -->
+    <div class="entity-card" style="grid-column: span 4;">
+      <div class="entity-header transaccional">
+        <span>INSPECCION</span>
+        <span class="entity-type">Fiscalización y Aforo</span>
+      </div>
+      <div class="entity-body" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+        <div>
+          <div class="attr-row"><span class="attr-name"><span class="tag tag-pk">PK</span> id_inspeccion</span><span class="attr-type">SERIAL</span></div>
+          <div class="attr-row"><span class="attr-name">numero_acta</span><span class="attr-type">VARCHAR(30) [UQ]</span></div>
+        </div>
+        <div>
+          <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_declaracion</span><span class="attr-type">INT &rarr; DECLARACION</span></div>
+          <div class="attr-row"><span class="attr-name"><span class="tag tag-fk">FK</span> id_funcionario</span><span class="attr-type">INT &rarr; FUNCIONARIO</span></div>
+        </div>
+        <div>
+          <div class="attr-row"><span class="attr-name">tipo_inspeccion</span><span class="attr-type">VARCHAR(20) [CHK]</span></div>
+          <div class="attr-row"><span class="attr-name">resultado</span><span class="attr-type">VARCHAR(25) [CHK]</span></div>
+        </div>
+        <div>
+          <div class="attr-row"><span class="attr-name">fecha_inspeccion</span><span class="attr-type">TIMESTAMP</span></div>
+          <div class="attr-row"><span class="attr-name">observaciones</span><span class="attr-type">TEXT</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="relations-panel">
+    <h3>MAPA DE CARDINALIDADES Y RELACIONES DEL SISTEMA</h3>
+    <div class="relations-grid">
+      <div class="rel-item">
+        <strong>1:N | pais &rarr; declaracion_aduanera</strong><br>
+        Un país es origen de múltiples declaraciones aduaneras (1:N obligatoria).
+      </div>
+      <div class="rel-item">
+        <strong>1:N | declaracion_aduanera &rarr; contenedor</strong><br>
+        Una declaración ampara 1 o más contenedores físicos (1:N obligatoria).
+      </div>
+      <div class="rel-item">
+        <strong>N:M Resuelta | declaracion &harr; producto</strong><br>
+        Resuelta por <code>detalle_declaracion</code> con cantidad, valor FOB y arancel individual.
+      </div>
+      <div class="rel-item">
+        <strong>Recursiva | funcionario &rarr; supervisor</strong><br>
+        <code>id_supervisor</code> referencia a <code>funcionario(id_funcionario)</code> modelando jerarquía.
+      </div>
+      <div class="rel-item">
+        <strong>1:N | bodega &rarr; inventario</strong><br>
+        Una bodega almacena múltiples ítems de stock fiscal retenido o liberado.
+      </div>
+      <div class="rel-item">
+        <strong>1:N | inventario &rarr; movimiento_inventario</strong><br>
+        Trazabilidad estricta de ingresos, traslados y levantes autorizados por funcionarios.
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

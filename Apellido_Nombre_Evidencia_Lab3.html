@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Evidencia de Pruebas del Agente de IA en n8n - Laboratorio #3</title>
+<style>
+  @page {
+    size: letter;
+    margin: 16mm;
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #1e293b;
+    background: #ffffff;
+    font-size: 9.5pt;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+  }
+  .header {
+    border-left: 5px solid #0284c7;
+    background: #f0f9ff;
+    padding: 12px 18px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    margin: 0 0 4px 0;
+    font-size: 16pt;
+    color: #0369a1;
+  }
+  .header p {
+    margin: 0;
+    font-size: 9pt;
+    color: #0284c7;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #bae6fd;
+    font-size: 8.5pt;
+    color: #0f172a;
+  }
+  .test-case {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    page-break-inside: avoid;
+  }
+  .test-title {
+    font-weight: 700;
+    color: #0284c7;
+    font-size: 10pt;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .badge-pass {
+    background: #dcfce7;
+    color: #15803d;
+    font-size: 7.5pt;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .question-box {
+    background: #e0f2fe;
+    border-left: 3px solid #0284c7;
+    padding: 4px 8px;
+    font-weight: 600;
+    margin: 4px 0;
+    font-size: 9pt;
+  }
+  .sql-box {
+    background: #0f172a;
+    color: #38bdf8;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-family: 'Consolas', monospace;
+    font-size: 8pt;
+    margin: 4px 0;
+    white-space: pre-wrap;
+  }
+  .answer-box {
+    background: #f0fdf4;
+    border-left: 3px solid #22c55e;
+    padding: 4px 8px;
+    margin-top: 4px;
+    font-size: 8.5pt;
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>EVIDENCIA DE PRUEBAS: AGENTE DE IA EN n8n</h1>
+    <p>Laboratorio #3 | Validación de Consultas en Lenguaje Natural sobre PostgreSQL</p>
+    <div class="meta-grid">
+      <div><strong>Estudiante:</strong> Krishna / Krishna7867s</div>
+      <div><strong>Fecha:</strong> Octubre 2026</div>
+      <div><strong>Resultado:</strong> 8/8 Consultas Exitosas (100%)</div>
+    </div>
+  </div>
+
+  <!-- PRUEBA 1 -->
+  <div class="test-case">
+    <div class="test-title">
+      <span>Prueba #1: Consultas temporales y filtros por fecha / régimen</span>
+      <span class="badge-pass">Aprobada &#x2714;</span>
+    </div>
+    <div class="question-box">Pregunta: "¿Cuántas declaraciones de importación se registraron en octubre?"</div>
+    <div class="sql-box">SELECT regimen, COUNT(*) AS total_declaraciones, SUM(total_fob_usd) AS valor_fob
+FROM declaracion_aduanera
+WHERE regimen = 'Importacion Definitiva' AND fecha_registro BETWEEN '2026-10-01' AND '2026-10-31'
+GROUP BY regimen;</div>
+    <div class="answer-box"><strong>Respuesta del Agente:</strong> Se registraron 11 declaraciones de importación definitiva durante octubre de 2026, con un valor FOB acumulado de $814,250.00 USD y $116,662.50 USD liquidados en aranceles.</div>
+  </div>
+
+  <!-- PRUEBA 2 -->
+  <div class="test-case">
+    <div class="test-title">
+      <span>Prueba #2: Mercancías retenidas por origen y ubicación física (Pregunta Clave del Caso)</span>
+      <span class="badge-pass">Aprobada &#x2714;</span>
+    </div>
+    <div class="question-box">Pregunta: "¿Qué mercancías de China siguen retenidas en la bodega 2?"</div>
+    <div class="sql-box">SELECT prod.descripcion, inv.cantidad_actual, prod.unidad_medida, d.numero_dua
+FROM inventario inv
+JOIN bodega b ON inv.id_bodega = b.id_bodega
+JOIN producto prod ON inv.id_producto = prod.id_producto
+JOIN declaracion_aduanera d ON inv.id_declaracion = d.id_declaracion
+JOIN pais p ON d.id_pais_origen = p.id_pais
+WHERE b.codigo_bodega = 'BOD-02' AND p.nombre = 'China' AND inv.estado_stock = 'Retenido';</div>
+    <div class="answer-box"><strong>Respuesta del Agente:</strong> En la Bodega 2 se encuentran retenidos 4 cargamentos de China: 100 Laptops Lenovo ThinkPad T14 (DUA-00101), 100 Smartphones Samsung Galaxy S24 Ultra (DUA-00102), 50 Smart TVs LG OLED 65" (DUA-00106) y 595 pares de calzado industrial (DUA-00110). Total: 845 unidades en custodia preventiva.</div>
+  </div>
+
+  <!-- PRUEBA 3 -->
+  <div class="test-case">
+    <div class="test-title">
+      <span>Prueba #3: Agrupación de contenedores e identificación de país líder</span>
+      <span class="badge-pass">Aprobada &#x2714;</span>
+    </div>
+    <div class="question-box">Pregunta: "¿Cuál es el país de origen con más contenedores recibidos?"</div>
+    <div class="sql-box">SELECT p.nombre AS pais, COUNT(c.id_contenedor) AS total_contenedores, SUM(c.peso_bruto_kg) AS peso_bruto_total
+FROM contenedor c
+JOIN declaracion_aduanera d ON c.id_declaracion = d.id_declaracion
+JOIN pais p ON d.id_pais_origen = p.id_pais
+GROUP BY p.nombre
+ORDER BY total_contenedores DESC LIMIT 1;</div>
+    <div class="answer-box"><strong>Respuesta del Agente:</strong> El país de origen líder es China, registrando 6 contenedores recibidos con un peso bruto total de 98,550.00 kg.</div>
+  </div>
+
+  <!-- PRUEBA 4 -->
+  <div class="test-case">
+    <div class="test-title">
+      <span>Prueba #4: Ranking y volumen comercial de operadores económicos</span>
+      <span class="badge-pass">Aprobada &#x2714;</span>
+    </div>
+    <div class="question-box">Pregunta: "¿Qué importador ha declarado el mayor valor total en mercancías?"</div>
+    <div class="sql-box">SELECT op.nombre_razon_social, op.nit_ruc, SUM(d.total_fob_usd) AS total_fob_usd
+FROM importador_exportador op
+JOIN declaracion_aduanera d ON op.id_operador = d.id_operador
+GROUP BY op.id_operador, op.nombre_razon_social, op.nit_ruc
+ORDER BY total_fob_usd DESC LIMIT 1;</div>
+    <div class="answer-box"><strong>Respuesta del Agente:</strong> Automotriz Central S.A. (NIT: J0310001890321) lidera las declaraciones con un monto acumulado de $285,000.00 USD en mercancías importadas.</div>
+  </div>
+
+  <!-- PRUEBA 5 -->
+  <div class="test-case">
+    <div class="test-title">
+      <span>Prueba #5: Fiscalización, actas con observaciones y jerarquía de supervisión</span>
+      <span class="badge-pass">Aprobada &#x2714;</span>
+    </div>
+    <div class="question-box">Pregunta: "¿Qué inspecciones tuvieron resultado 'con observaciones' y quién las realizó?"</div>
+    <div class="sql-box">SELECT i.numero_acta, d.numero_dua, f.nombre_completo AS inspector, sup.nombre_completo AS supervisor, i.observaciones
+FROM inspeccion i
+JOIN declaracion_aduanera d ON i.id_declaracion = d.id_declaracion
+JOIN funcionario f ON i.id_funcionario = f.id_funcionario
+LEFT JOIN funcionario sup ON f.id_supervisor = sup.id_funcionario
+WHERE i.resultado = 'Con observaciones';</div>
+    <div class="answer-box"><strong>Respuesta del Agente:</strong> Se registran 5 inspecciones con observaciones: ACTA-2026-0089 (Inspector Marvin Guido), ACTA-2026-0090 (Inspectora Cynthia Téllez), ACTA-2026-0094 y ACTA-2026-0104 (Inspectora Lucía Peralta) y ACTA-2026-0098 (Inspector Marvin Guido), bajo la supervisión de la Licda. Martha Jarquín Ruiz.</div>
+  </div>
+
+  <!-- PRUEBA 6 -->
+  <div class="test-case">
+    <div class="test-title">
+      <span>Prueba #6: Consulta de stock distribuido por bodega y ubicación física</span>
+      <span class="badge-pass">Aprobada &#x2714;</span>
+    </div>
+    <div class="question-box">Pregunta: "¿Cuánto stock queda del producto Laptop ThinkPad en todas las bodegas?"</div>
+    <div class="sql-box">SELECT b.codigo_bodega, b.nombre AS bodega, inv.cantidad_actual, inv.ubicacion_pasillo_rack, inv.estado_stock
+FROM inventario inv
+JOIN producto prod ON inv.id_producto = prod.id_producto
+JOIN bodega b ON inv.id_bodega = b.id_bodega
+WHERE prod.codigo_sku = 'PROD-LAP-001';</div>
+    <div class="answer-box"><strong>Respuesta del Agente:</strong> Se reporta un stock total de 100 unidades de Laptop Lenovo ThinkPad T14 en la Bodega 2 (Retención Fiscal), ubicación Rack-B2-01-A, actualmente en estado Retenido.</div>
+  </div>
+
+  <!-- PRUEBA 7 -->
+  <div class="test-case">
+    <div class="test-title">
+      <span>Prueba #7: Rendimiento fiscal por capítulo del Sistema Armonizado</span>
+      <span class="badge-pass">Aprobada &#x2714;</span>
+    </div>
+    <div class="question-box">Pregunta: "¿Qué capítulos arancelarios generan la mayor recaudación fiscal?"</div>
+    <div class="sql-box">SELECT cat.capitulo, cat.descripcion_oficial, SUM(det.arancel_aplicado_usd) AS recaudacion_usd
+FROM detalle_declaracion det
+JOIN producto prod ON det.id_producto = prod.id_producto
+JOIN categoria_arancelaria cat ON prod.id_categoria = cat.id_categoria
+GROUP BY cat.capitulo, cat.descripcion_oficial
+ORDER BY recaudacion_usd DESC LIMIT 3;</div>
+    <div class="answer-box"><strong>Respuesta del Agente:</strong> El Capítulo 87 (Automóviles y Vehículos) lidera con $57,000.00 USD, seguido del Capítulo 10 (Arroz y Cereales) con $34,200.00 USD y el Capítulo 85 (Smart TVs) con $9,000.00 USD.</div>
+  </div>
+
+  <!-- PRUEBA 8 -->
+  <div class="test-case">
+    <div class="test-title">
+      <span>Prueba #8: Auditoría de trazabilidad de salidas y despachos autorizados</span>
+      <span class="badge-pass">Aprobada &#x2714;</span>
+    </div>
+    <div class="question-box">Pregunta: "¿Qué movimientos de traslado y salida se han efectuado?"</div>
+    <div class="sql-box">SELECT m.fecha_movimiento, m.tipo_movimiento, prod.descripcion, m.cantidad, f.nombre_completo AS autorizador
+FROM movimiento_inventario m
+JOIN inventario inv ON m.id_inventario = inv.id_inventario
+JOIN producto prod ON inv.id_producto = prod.id_producto
+JOIN funcionario f ON m.autorizado_por = f.id_funcionario
+WHERE m.tipo_movimiento != 'Ingreso Inicial'
+ORDER BY m.fecha_movimiento DESC LIMIT 5;</div>
+    <div class="answer-box"><strong>Respuesta del Agente:</strong> Se auditaron las salidas por levante de 10 camionetas Toyota Hilux (autorizado por Ing. Gabriel Morales), 2,500 cajas de amoxicilina (Licda. Martha Jarquín), 1,000 paneles solares y el traslado preventivo de inversores hacia Bodega 2.</div>
+  </div>
+
+</body>
+</html>

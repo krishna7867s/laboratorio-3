@@ -1,0 +1,144 @@
+// ============================================================================
+// DIAGRAMA ENTIDAD-RELACIÓN (DBML - dbdiagram.io)
+// SISTEMA DE INVENTARIO ADUANERO - LABORATORIO #3
+// ============================================================================
+
+Table pais {
+  id_pais integer [pk, increment]
+  nombre varchar(80) [not null, unique]
+  codigo_iso char(2) [not null, unique]
+  codigo_iso3 char(3) [not null, unique]
+  continente varchar(30) [not null]
+  activo boolean [default: true]
+}
+
+Table importador_exportador {
+  id_operador integer [pk, increment]
+  nombre_razon_social varchar(150) [not null]
+  nit_ruc varchar(25) [not null, unique]
+  tipo_operador varchar(25) [not null]
+  direccion varchar(200) [not null]
+  telefono varchar(30) [not null]
+  correo varchar(100) [not null, unique]
+  calificacion_riesgo varchar(15) [default: 'Bajo']
+  fecha_registro date [default: `CURRENT_DATE`]
+}
+
+Table agente_aduanal {
+  id_agente integer [pk, increment]
+  nombre_completo varchar(120) [not null]
+  numero_licencia varchar(30) [not null, unique]
+  telefono varchar(30) [not null]
+  correo varchar(100) [not null, unique]
+  agencia_aduanal varchar(150) [not null]
+  estado_licencia varchar(20) [default: 'Activa']
+  fecha_acreditacion date [not null]
+}
+
+Table categoria_arancelaria {
+  id_categoria integer [pk, increment]
+  codigo_partida varchar(12) [not null, unique]
+  capitulo varchar(4) [not null]
+  descripcion_oficial varchar(255) [not null]
+  porcentaje_arancel decimal(5,2) [not null]
+  requiere_permiso_especial boolean [default: false]
+}
+
+Table producto {
+  id_producto integer [pk, increment]
+  codigo_sku varchar(30) [not null, unique]
+  descripcion varchar(200) [not null]
+  unidad_medida varchar(20) [not null]
+  valor_unitario_fob_ref decimal(12,2) [not null]
+  id_categoria integer [not null, ref: > categoria_arancelaria.id_categoria]
+}
+
+Table bodega {
+  id_bodega integer [pk, increment]
+  codigo_bodega varchar(15) [not null, unique]
+  nombre varchar(100) [not null]
+  tipo_deposito varchar(40) [not null]
+  ubicacion_terminal varchar(120) [not null]
+  capacidad_max_pallets integer [not null]
+  temperatura_controlada boolean [default: false]
+  responsable_bodega varchar(100) [not null]
+}
+
+Table declaracion_aduanera {
+  id_declaracion integer [pk, increment]
+  numero_dua varchar(30) [not null, unique]
+  fecha_registro date [not null]
+  regimen varchar(30) [not null]
+  canal_aforo varchar(15) [not null]
+  estado varchar(20) [default: 'Retenida']
+  id_operador integer [not null, ref: > importador_exportador.id_operador]
+  id_agente integer [not null, ref: > agente_aduanal.id_agente]
+  id_pais_origen integer [not null, ref: > pais.id_pais]
+  total_fob_usd decimal(14,2) [default: 0]
+  total_arancel_usd decimal(14,2) [default: 0]
+}
+
+Table detalle_declaracion {
+  id_detalle integer [pk, increment]
+  id_declaracion integer [not null, ref: > declaracion_aduanera.id_declaracion]
+  id_producto integer [not null, ref: > producto.id_producto]
+  cantidad numeric(12,2) [not null]
+  valor_unitario_usd decimal(12,2) [not null]
+  valor_total_fob decimal(14,2) [not null]
+  flete_seguro_usd decimal(12,2) [default: 0]
+  arancel_aplicado_usd decimal(12,2) [not null]
+}
+
+Table contenedor {
+  id_contenedor integer [pk, increment]
+  numero_contenedor varchar(15) [not null, unique]
+  tipo varchar(25) [not null]
+  peso_tara_kg decimal(8,2) [not null]
+  peso_bruto_kg decimal(9,2) [not null]
+  numero_sello_seguridad varchar(30) [not null, unique]
+  id_declaracion integer [not null, ref: > declaracion_aduanera.id_declaracion]
+}
+
+Table funcionario {
+  id_funcionario integer [pk, increment]
+  codigo_empleado varchar(20) [not null, unique]
+  nombre_completo varchar(120) [not null]
+  cargo varchar(60) [not null]
+  departamento varchar(60) [not null]
+  correo_institucional varchar(100) [not null, unique]
+  id_supervisor integer [ref: > funcionario.id_funcionario] // Relación recursiva
+}
+
+Table inspeccion {
+  id_inspeccion integer [pk, increment]
+  numero_acta varchar(30) [not null, unique]
+  fecha_inspeccion timestamp [not null]
+  tipo_inspeccion varchar(20) [not null]
+  resultado varchar(25) [not null]
+  observaciones text [not null]
+  id_declaracion integer [not null, ref: > declaracion_aduanera.id_declaracion]
+  id_funcionario integer [not null, ref: > funcionario.id_funcionario]
+}
+
+Table inventario {
+  id_inventario integer [pk, increment]
+  id_bodega integer [not null, ref: > bodega.id_bodega]
+  id_producto integer [not null, ref: > producto.id_producto]
+  id_declaracion integer [not null, ref: > declaracion_aduanera.id_declaracion]
+  cantidad_actual numeric(12,2) [not null]
+  fecha_ingreso_bodega timestamp [not null]
+  ubicacion_pasillo_rack varchar(30) [not null]
+  estado_stock varchar(20) [default: 'Retenido']
+}
+
+Table movimiento_inventario {
+  id_movimiento integer [pk, increment]
+  id_inventario integer [not null, ref: > inventario.id_inventario]
+  tipo_movimiento varchar(25) [not null]
+  fecha_movimiento timestamp [not null]
+  cantidad numeric(12,2) [not null]
+  id_bodega_origen integer [ref: > bodega.id_bodega]
+  id_bodega_destino integer [ref: > bodega.id_bodega]
+  motivo varchar(200) [not null]
+  autorizado_por integer [not null, ref: > funcionario.id_funcionario]
+}
