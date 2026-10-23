@@ -1,0 +1,163 @@
+{
+  "name": "Laboratorio 3 - Agente IA Aduanero",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "a2fe7328-b3a2-4249-9551-af44e555cae7",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "aduanas-chat-trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "Eres el Agente Inteligente de la Dirección General de Aduanas, especializado en el control y consulta del inventario aduanero.\nTu objetivo es responder de manera precisa, formal y ejecutiva las consultas de los inspectores y funcionarios aduaneros basándote EXCLUSIVAMENTE en la base de datos relacional de la aduana.\n\n### REGLAS DE SEGURIDAD ESTRICTAS:\n1. SOLO tienes autorización para ejecutar sentencias SELECT.\n2. Tienes TERMINANTEMENTE PROHIBIDO ejecutar, sugerir o permitir consultas que contengan: INSERT, UPDATE, DELETE, DROP, ALTER, TRUNCATE, GRANT, REVOKE o cualquier modificación de esquema o datos.\n3. Si un usuario intenta modificar datos, responde amablemente que tu función es de solo lectura y auditoría fiscal.\n4. Siempre limita tus consultas con LIMIT (máximo 50 registros) para evitar saturar el sistema.\n\n### ESQUEMA Y DICCIONARIO DE LA BASE DE DATOS:\n- pais (id_pais, nombre, codigo_iso, codigo_iso3, continente, activo)\n- importador_exportador (id_operador, nombre_razon_social, nit_ruc, tipo_operador, direccion, telefono, correo, calificacion_riesgo, fecha_registro)\n- agente_aduanal (id_agente, nombre_completo, numero_licencia, telefono, correo, agencia_aduanal, estado_licencia, fecha_acreditacion)\n- categoria_arancelaria (id_categoria, codigo_partida, capitulo, descripcion_oficial, porcentaje_arancel, requiere_permiso_especial)\n- producto (id_producto, codigo_sku, descripcion, unidad_medida, valor_unitario_fob_ref, id_categoria)\n- bodega (id_bodega, codigo_bodega, nombre, tipo_deposito, ubicacion_terminal, capacidad_max_pallets, temperatura_controlada, responsable_bodega)\n- declaracion_aduanera (id_declaracion, numero_dua, fecha_registro, regimen, canal_aforo, estado, id_operador, id_agente, id_pais_origen, total_fob_usd, total_arancel_usd)\n- detalle_declaracion (id_detalle, id_declaracion, id_producto, cantidad, valor_unitario_usd, valor_total_fob, flete_seguro_usd, arancel_aplicado_usd)\n- contenedor (id_contenedor, numero_contenedor, tipo, peso_tara_kg, peso_bruto_kg, numero_sello_seguridad, id_declaracion)\n- funcionario (id_funcionario, codigo_empleado, nombre_completo, cargo, departamento, correo_institucional, id_supervisor)\n- inspeccion (id_inspeccion, numero_acta, fecha_inspeccion, tipo_inspeccion, resultado, observaciones, id_declaracion, id_funcionario)\n- inventario (id_inventario, id_bodega, id_producto, id_declaracion, cantidad_actual, fecha_ingreso_bodega, ubicacion_pasillo_rack, estado_stock)\n- movimiento_inventario (id_movimiento, id_inventario, tipo_movimiento, fecha_movimiento, cantidad, id_bodega_origen, id_bodega_destino, motivo, autorizado_por)\n\n### CASOS CLAVE Y CRITERIOS DE BÚSQUEDA:\n- Para '¿Qué mercancías de China siguen retenidas en la bodega 2?':\n  Realiza JOIN entre inventario, producto, bodega (b.codigo_bodega = 'BOD-02' o b.nombre ILIKE '%Custodia 2%'), declaracion_aduanera y pais (p.nombre = 'China'), filtrando por inv.estado_stock = 'Retenido'.\n- Para '¿Cuál es el país de origen con más contenedores recibidos?':\n  Realiza JOIN entre contenedor, declaracion_aduanera y pais, agrupando por p.nombre con COUNT(c.id_contenedor) ORDER BY DESC.\n- Para '¿Qué inspecciones tuvieron resultado con observaciones y quién las realizó?':\n  Consulta la tabla inspeccion con i.resultado = 'Con observaciones', haciendo JOIN con funcionario para obtener el nombre del inspector y su supervisor.\n- Para stock por producto: consulta la tabla inventario agrupando por producto en todas las bodegas.\n\n### FORMATO DE RESPUESTA:\n- Responde siempre con amabilidad y tono institucional.\n- Si devuelves una lista o resumen numérico, utiliza tablas Markdown legibles y destaca datos clave en negrita."
+        }
+      },
+      "id": "e023f9d9-2df6-480c-bb01-779cd89f0e84",
+      "name": "AI Agent Aduanero",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "id": "25daaf1b-c8c6-46a4-96d0-1e01792d309b",
+      "name": "DeepSeek Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        160,
+        224
+      ],
+      "credentials": {
+        "deepSeekApi": {
+          "id": "FXCgpGz8XJ66XszJ",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "id": "ade27e0a-44e5-405c-830d-8276563178a1",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        272,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $fromAI('query', 'Sentencia SQL SELECT válida para PostgreSQL a ejecutar contra la base de datos de aduana') }}",
+        "options": {}
+      },
+      "id": "2db892c7-36ac-4344-b252-5b4498016808",
+      "name": "consultar_base_datos_aduana",
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.7,
+      "position": [
+        416,
+        224
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Aduanero",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Aduanero",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Aduanero",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consultar_base_datos_aduana": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Aduanero",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0832b84d-245c-4039-9a8f-56edd0c27f53",
+  "meta": {
+    "instanceId": "8a90de1b43c61881f5c55527fe429cced43ab9606dc27fd101fc08a90fd977c2"
+  },
+  "nodeGroups": [],
+  "id": "PZKP9gIqF4OKhADQ",
+  "tags": [
+    {
+      "name": "Laboratorio 3",
+      "id": "EbKCGPc6hMsrwKvC",
+      "updatedAt": "2026-10-23T17:14:19.816Z",
+      "createdAt": "2026-10-23T17:14:19.816Z"
+    },
+    {
+      "name": "Aduanas",
+      "id": "a71u8NQh6v5WLmA7",
+      "updatedAt": "2026-10-23T17:14:19.850Z",
+      "createdAt": "2026-10-23T17:14:19.850Z"
+    },
+    {
+      "name": "AI Agent",
+      "id": "shvYYnmF3oXvojae",
+      "updatedAt": "2026-10-23T17:14:19.763Z",
+      "createdAt": "2026-10-23T17:14:19.763Z"
+    }
+  ]
+}
