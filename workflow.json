@@ -1,5 +1,5 @@
 {
-  "name": "Laboratorio 3 - Agente IA Aduanero",
+  "name": "Laboratorio 3 - Agente IA Aduanero (Grok xAI)",
   "nodes": [
     {
       "parameters": {
@@ -34,22 +34,24 @@
     },
     {
       "parameters": {
+        "model": "grok-2-latest",
         "options": {
+          "baseURL": "https://api.x.ai/v1",
           "temperature": 0.1
         }
       },
       "id": "25daaf1b-c8c6-46a4-96d0-1e01792d309b",
-      "name": "DeepSeek Chat Model",
-      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "name": "Grok xAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1,
       "position": [
         160,
         224
       ],
       "credentials": {
-        "deepSeekApi": {
-          "id": "FXCgpGz8XJ66XszJ",
-          "name": "DeepSeek account"
+        "openAiApi": {
+          "id": "xai-grok-credential",
+          "name": "xAI Grok API Key"
         }
       }
     },
@@ -95,7 +97,7 @@
         ]
       ]
     },
-    "DeepSeek Chat Model": {
+    "Grok xAI Chat Model": {
       "ai_languageModel": [
         [
           {
@@ -142,22 +144,13 @@
   "id": "PZKP9gIqF4OKhADQ",
   "tags": [
     {
-      "name": "Laboratorio 3",
-      "id": "EbKCGPc6hMsrwKvC",
-      "updatedAt": "2026-10-23T17:14:19.816Z",
-      "createdAt": "2026-10-23T17:14:19.816Z"
+      "name": "Laboratorio 3"
     },
     {
-      "name": "Aduanas",
-      "id": "a71u8NQh6v5WLmA7",
-      "updatedAt": "2026-10-23T17:14:19.850Z",
-      "createdAt": "2026-10-23T17:14:19.850Z"
+      "name": "Aduanas"
     },
     {
-      "name": "AI Agent",
-      "id": "shvYYnmF3oXvojae",
-      "updatedAt": "2026-10-23T17:14:19.763Z",
-      "createdAt": "2026-10-23T17:14:19.763Z"
+      "name": "Grok xAI"
     }
   ]
 }
