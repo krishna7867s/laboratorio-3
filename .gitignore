@@ -1,0 +1,7 @@
+# Entorno local / dependencias
+node_modules/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+Thumbs.db
