@@ -1,21 +1,3 @@
--- ============================================================================
--- LABORATORIO #3: SISTEMA DE INVENTARIO ADUANERO
--- ASIGNATURA: Bases de Datos
--- GESTOR: PostgreSQL 14+ / 15+ / 16+
--- INTEGRANTES: [Nombre y Apellido del Estudiante]
--- FECHA: Octubre 2026
--- DESCRIPCIÓN: Script de creación de tablas, restricciones de integridad,
---              poblado con datos realistas (mínimo 15 registros por tabla)
---              y 8 consultas analíticas para toma de decisiones aduaneras.
--- ============================================================================
-
--- ----------------------------------------------------------------------------
--- 0. CONFIGURACIÓN INICIAL Y ELIMINACIÓN PREVIA (PARA EJECUCIÓN LIMPIA)
--- ----------------------------------------------------------------------------
--- NOTA: Si crea la base desde cero en PostgreSQL:
--- CREATE DATABASE aduana_lab3 WITH OWNER = postgres ENCODING = 'UTF8';
--- \c aduana_lab3;
-
 DROP TABLE IF EXISTS movimiento_inventario CASCADE;
 DROP TABLE IF EXISTS inventario CASCADE;
 DROP TABLE IF EXISTS inspeccion CASCADE;
@@ -29,13 +11,6 @@ DROP TABLE IF EXISTS bodega CASCADE;
 DROP TABLE IF EXISTS agente_aduanal CASCADE;
 DROP TABLE IF EXISTS importador_exportador CASCADE;
 DROP TABLE IF EXISTS pais CASCADE;
-
--- ============================================================================
--- PARTE II Y III: CREACIÓN DE TABLAS CON RESTRICCIONES (DDL)
--- ============================================================================
-
--- TABLA 1: PAIS
--- Almacena los países de origen, procedencia y destino de mercancías según ISO 3166-1.
 CREATE TABLE pais (
     id_pais SERIAL PRIMARY KEY,
     nombre VARCHAR(80) NOT NULL UNIQUE,
@@ -44,9 +19,6 @@ CREATE TABLE pais (
     continente VARCHAR(30) NOT NULL CHECK (continente IN ('América', 'Europa', 'Asia', 'África', 'Oceanía')),
     activo BOOLEAN DEFAULT TRUE NOT NULL
 );
-
--- TABLA 2: IMPORTADOR / EXPORTADOR (OPERADORES DE COMERCIO EXTERIOR)
--- Empresas o personas registradas legalmente ante la aduana para realizar operaciones.
 CREATE TABLE importador_exportador (
     id_operador SERIAL PRIMARY KEY,
     nombre_razon_social VARCHAR(150) NOT NULL,
@@ -58,9 +30,6 @@ CREATE TABLE importador_exportador (
     calificacion_riesgo VARCHAR(15) DEFAULT 'Bajo' NOT NULL CHECK (calificacion_riesgo IN ('Bajo', 'Medio', 'Alto', 'Crítico')),
     fecha_registro DATE DEFAULT CURRENT_DATE NOT NULL
 );
-
--- TABLA 3: AGENTE ADUANAL
--- Auxiliares de la función pública autorizados para gestionar despachos aduaneros.
 CREATE TABLE agente_aduanal (
     id_agente SERIAL PRIMARY KEY,
     nombre_completo VARCHAR(120) NOT NULL,
@@ -71,20 +40,14 @@ CREATE TABLE agente_aduanal (
     estado_licencia VARCHAR(20) DEFAULT 'Activa' NOT NULL CHECK (estado_licencia IN ('Activa', 'Suspendida', 'En Revocación')),
     fecha_acreditacion DATE NOT NULL
 );
-
--- TABLA 4: CATEGORÍA / PARTIDA ARANCELARIA
--- Basado en el Sistema Armonizado (SA) de la Organización Mundial de Aduanas (OMA).
 CREATE TABLE categoria_arancelaria (
     id_categoria SERIAL PRIMARY KEY,
-    codigo_partida VARCHAR(12) NOT NULL UNIQUE, -- Ej: 8471.30.00
-    capitulo VARCHAR(4) NOT NULL,               -- Ej: 84
+    codigo_partida VARCHAR(12) NOT NULL UNIQUE,
+    capitulo VARCHAR(4) NOT NULL,
     descripcion_oficial VARCHAR(255) NOT NULL,
     porcentaje_arancel DECIMAL(5,2) NOT NULL CHECK (porcentaje_arancel >= 0.00 AND porcentaje_arancel <= 100.00),
     requiere_permiso_especial BOOLEAN DEFAULT FALSE NOT NULL
 );
-
--- TABLA 5: PRODUCTO / MERCANCÍA
--- Catálogo de productos sujetos a declaración e inventario aduanero.
 CREATE TABLE producto (
     id_producto SERIAL PRIMARY KEY,
     codigo_sku VARCHAR(30) NOT NULL UNIQUE,
@@ -95,12 +58,9 @@ CREATE TABLE producto (
     CONSTRAINT fk_producto_categoria FOREIGN KEY (id_categoria) 
         REFERENCES categoria_arancelaria(id_categoria) ON UPDATE CASCADE ON DELETE RESTRICT
 );
-
--- TABLA 6: BODEGA / DEPÓSITO ADUANERO
--- Instalaciones físicas de resguardo y almacenamiento aduanero bajo control fiscal.
 CREATE TABLE bodega (
     id_bodega SERIAL PRIMARY KEY,
-    codigo_bodega VARCHAR(15) NOT NULL UNIQUE, -- Ej: BOD-01, BOD-02
+    codigo_bodega VARCHAR(15) NOT NULL UNIQUE,
     nombre VARCHAR(100) NOT NULL,
     tipo_deposito VARCHAR(40) NOT NULL CHECK (tipo_deposito IN ('Depósito Temporal', 'Almacén Fiscal', 'Refrigerado', 'Mercancías Peligrosas', 'Bienes Incautados')),
     ubicacion_terminal VARCHAR(120) NOT NULL,
@@ -108,15 +68,12 @@ CREATE TABLE bodega (
     temperatura_controlada BOOLEAN DEFAULT FALSE NOT NULL,
     responsable_bodega VARCHAR(100) NOT NULL
 );
-
--- TABLA 7: DECLARACIÓN ADUANERA (DUA / PEDIMENTO)
--- Documento oficial donde se formaliza el ingreso, tránsito o salida de mercancías.
 CREATE TABLE declaracion_aduanera (
     id_declaracion SERIAL PRIMARY KEY,
-    numero_dua VARCHAR(30) NOT NULL UNIQUE, -- Formato: DUA-YYYY-XXXXX
+    numero_dua VARCHAR(30) NOT NULL UNIQUE,
     fecha_registro DATE NOT NULL,
     regimen VARCHAR(30) NOT NULL CHECK (regimen IN ('Importacion Definitiva', 'Exportacion Definitiva', 'Transito Aduanero', 'Deposito Aduanero')),
-    canal_aforo VARCHAR(15) NOT NULL CHECK (canal_aforo IN ('Verde', 'Amarillo', 'Rojo')), -- Aforo automático, documental o físico
+    canal_aforo VARCHAR(15) NOT NULL CHECK (canal_aforo IN ('Verde', 'Amarillo', 'Rojo')),
     estado VARCHAR(20) DEFAULT 'Retenida' NOT NULL CHECK (estado IN ('Registrada', 'En Inspección', 'Retenida', 'Liberada', 'Decomisada')),
     id_operador INT NOT NULL,
     id_agente INT NOT NULL,
@@ -130,9 +87,6 @@ CREATE TABLE declaracion_aduanera (
     CONSTRAINT fk_declaracion_pais_origen FOREIGN KEY (id_pais_origen)
         REFERENCES pais(id_pais) ON UPDATE CASCADE ON DELETE RESTRICT
 );
-
--- TABLA 8: DETALLE DE DECLARACIÓN (TABLA INTERMEDIA N:M ENTRE DECLARACIÓN Y PRODUCTO)
--- Resuelve la relación muchos a muchos: una declaración tiene varios productos y un producto aparece en varias declaraciones.
 CREATE TABLE detalle_declaracion (
     id_detalle SERIAL PRIMARY KEY,
     id_declaracion INT NOT NULL,
@@ -148,12 +102,9 @@ CREATE TABLE detalle_declaracion (
         REFERENCES producto(id_producto) ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT uq_declaracion_producto UNIQUE (id_declaracion, id_producto)
 );
-
--- TABLA 9: CONTENEDOR
--- Unidades intermodales de transporte (ISO 6346) asociadas a una declaración (1:N).
 CREATE TABLE contenedor (
     id_contenedor SERIAL PRIMARY KEY,
-    numero_contenedor VARCHAR(15) NOT NULL UNIQUE, -- Ej: MSKU7849123
+    numero_contenedor VARCHAR(15) NOT NULL UNIQUE,
     tipo VARCHAR(25) NOT NULL CHECK (tipo IN ('Dry 20ft', 'Dry 40ft', 'High Cube 40ft', 'Reefer 40ft', 'Open Top 20ft', 'Flat Rack 40ft')),
     peso_tara_kg DECIMAL(8,2) NOT NULL CHECK (peso_tara_kg > 0),
     peso_bruto_kg DECIMAL(9,2) NOT NULL CHECK (peso_bruto_kg >= peso_tara_kg),
@@ -162,9 +113,6 @@ CREATE TABLE contenedor (
     CONSTRAINT fk_contenedor_declaracion FOREIGN KEY (id_declaracion)
         REFERENCES declaracion_aduanera(id_declaracion) ON UPDATE CASCADE ON DELETE CASCADE
 );
-
--- TABLA 10: FUNCIONARIO (CON RELACIÓN RECURSIVA DE SUPERVISIÓN)
--- Personal aduanero que fiscaliza e inspecciona; incluye relación jerárquica con id_supervisor.
 CREATE TABLE funcionario (
     id_funcionario SERIAL PRIMARY KEY,
     codigo_empleado VARCHAR(20) NOT NULL UNIQUE,
@@ -176,9 +124,6 @@ CREATE TABLE funcionario (
     CONSTRAINT fk_funcionario_supervisor FOREIGN KEY (id_supervisor)
         REFERENCES funcionario(id_funcionario) ON UPDATE CASCADE ON DELETE SET NULL
 );
-
--- TABLA 11: INSPECCIÓN ADUANERA
--- Registro de actos de fiscalización documental y física realizados sobre las declaraciones.
 CREATE TABLE inspeccion (
     id_inspeccion SERIAL PRIMARY KEY,
     numero_acta VARCHAR(30) NOT NULL UNIQUE,
@@ -193,9 +138,6 @@ CREATE TABLE inspeccion (
     CONSTRAINT fk_inspeccion_funcionario FOREIGN KEY (id_funcionario)
         REFERENCES funcionario(id_funcionario) ON UPDATE CASCADE ON DELETE RESTRICT
 );
-
--- TABLA 12: INVENTARIO / STOCK EN BODEGA
--- Control físico de existencias por producto, bodega y su expediente de declaración.
 CREATE TABLE inventario (
     id_inventario SERIAL PRIMARY KEY,
     id_bodega INT NOT NULL,
@@ -213,9 +155,6 @@ CREATE TABLE inventario (
         REFERENCES declaracion_aduanera(id_declaracion) ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT uq_inventario_ubicacion UNIQUE (id_bodega, id_producto, id_declaracion, ubicacion_pasillo_rack)
 );
-
--- TABLA 13: MOVIMIENTO DE INVENTARIO
--- Trazabilidad y kardex de entradas, traslados internos y liberaciones aduaneras.
 CREATE TABLE movimiento_inventario (
     id_movimiento SERIAL PRIMARY KEY,
     id_inventario INT NOT NULL,
@@ -235,12 +174,6 @@ CREATE TABLE movimiento_inventario (
     CONSTRAINT fk_movimiento_autorizador FOREIGN KEY (autorizado_por)
         REFERENCES funcionario(id_funcionario) ON UPDATE CASCADE ON DELETE RESTRICT
 );
-
--- ============================================================================
--- PARTE III: POBLADO DE DATOS (MÍNIMO 15 REGISTROS POR TABLA)
--- ============================================================================
-
--- 1. POBLADO: PAIS (16 registros reales y precisos)
 INSERT INTO pais (nombre, codigo_iso, codigo_iso3, continente) VALUES
 ('China', 'CN', 'CHN', 'Asia'),
 ('Estados Unidos', 'US', 'USA', 'América'),
@@ -258,8 +191,6 @@ INSERT INTO pais (nombre, codigo_iso, codigo_iso3, continente) VALUES
 ('Canadá', 'CA', 'CAN', 'América'),
 ('India', 'IN', 'IND', 'Asia'),
 ('Chile', 'CL', 'CHL', 'América');
-
--- 2. POBLADO: IMPORTADOR / EXPORTADOR (16 registros)
 INSERT INTO importador_exportador (nombre_razon_social, nit_ruc, tipo_operador, direccion, telefono, correo, calificacion_riesgo, fecha_registro) VALUES
 ('TechGlobal Logistics S.A.', 'J0310001890123', 'Importador', 'Parque Industrial Norte, Nave 4', '+505 2270-1122', 'contacto@techglobal.com', 'Bajo', '2024-01-15'),
 ('AgroExport del Pacífico S.A.', 'J0310001890456', 'Exportador', 'Carretera a Masaya Km 14.5', '+505 2278-4455', 'comercial@agroexport.com', 'Bajo', '2024-02-10'),
@@ -277,8 +208,6 @@ INSERT INTO importador_exportador (nombre_razon_social, nit_ruc, tipo_operador, 
 ('Consorcio Minero de Occidente', 'J0310001892526', 'Mixto', 'Mina San Albino, Sector Mina', '+505 2732-2211', 'suministros@consorciominero.com', 'Medio', '2024-09-18'),
 ('Supermercados El Ahorro S.A.', 'J0310001892728', 'Importador', 'Pista de la Resistencia, Managua', '+505 2280-5566', 'importaciones@elahorro.com', 'Bajo', '2024-10-01'),
 ('Importaciones Express Ramírez', 'J0310001892930', 'Importador', 'Barrio Monseñor Lezcano #310', '+505 2266-7788', 'contacto@importramirez.com', 'Crítico', '2024-10-10');
-
--- 3. POBLADO: AGENTE ADUANAL (15 registros)
 INSERT INTO agente_aduanal (nombre_completo, numero_licencia, telefono, correo, agencia_aduanal, estado_licencia, fecha_acreditacion) VALUES
 ('Lic. Carlos Alberto Mendoza Vega', 'LIC-ADU-2015-001', '+505 8881-2233', 'carlos.mendoza@aduanasmendoza.com', 'Agencia Aduanera Mendoza & Asociados', 'Activa', '2015-03-10'),
 ('Licda. María Elena Brenes Soto', 'LIC-ADU-2016-042', '+505 8882-3344', 'mbrenes@brenescustoms.com', 'Brenes Customs Broker Services', 'Activa', '2016-07-22'),
@@ -295,8 +224,6 @@ INSERT INTO agente_aduanal (nombre_completo, numero_licencia, telefono, correo, 
 ('Lic. Jorge Luis Solórzano Parrales', 'LIC-ADU-2023-345', '+505 8893-5566', 'jsolorzano@solorzanobrokers.com', 'Solórzano & Consultores Aduaneros', 'Activa', '2023-03-05'),
 ('Licda. Brenda Lucía Mairena López', 'LIC-ADU-2023-370', '+505 8894-6677', 'bmairena@mairenaaduanas.com', 'Mairena Servicios Aduaneros Integrados', 'Activa', '2023-10-18'),
 ('Lic. Álvaro Daniel Estrada Sevilla', 'LIC-ADU-2024-402', '+505 8895-7788', 'aestrada@estradacustoms.com', 'Estrada Despachos y Logística', 'Suspendida', '2024-02-01');
-
--- 4. POBLADO: CATEGORÍA ARANCELARIA (16 registros según Sistema Armonizado)
 INSERT INTO categoria_arancelaria (codigo_partida, capitulo, descripcion_oficial, porcentaje_arancel, requiere_permiso_especial) VALUES
 ('8471.30.00', '84', 'Máquinas automáticas para tratamiento o procesamiento de datos, portátiles (Laptops y tablets)', 0.00, FALSE),
 ('8517.13.00', '85', 'Teléfonos inteligentes (Smartphones) y terminales móviles', 0.00, FALSE),
@@ -314,8 +241,6 @@ INSERT INTO categoria_arancelaria (codigo_partida, capitulo, descripcion_oficial
 ('0201.30.00', '02', 'Carne de animales de la especie bovina, deshuesada, fresca o refrigerada', 25.00, TRUE),
 ('9018.90.90', '90', 'Instrumentos y aparatos de medicina, cirugía, odontología o veterinaria', 0.00, TRUE),
 ('8504.40.90', '85', 'Convertidores estáticos e inversores de corriente para energía solar y telecomunicaciones', 0.00, FALSE);
-
--- 5. POBLADO: PRODUCTO (16 registros)
 INSERT INTO producto (codigo_sku, descripcion, unidad_medida, valor_unitario_fob_ref, id_categoria) VALUES
 ('PROD-LAP-001', 'Laptop Lenovo ThinkPad T14 Gen 4 Intel Core i7 16GB 512GB SSD', 'Unidad', 850.00, 1),
 ('PROD-PHN-002', 'Smartphone Samsung Galaxy S24 Ultra 256GB Titanium Gray', 'Unidad', 920.00, 2),
@@ -333,8 +258,6 @@ INSERT INTO producto (codigo_sku, descripcion, unidad_medida, valor_unitario_fob
 ('PROD-CAR-014', 'Corte Premium Lomo Fino de Res Congelado al Vacío Caja 20 kg', 'Caja', 240.00, 14),
 ('PROD-MED-015', 'Monitor de signos vitales multiparámetro hospitalario 12 pulgadas', 'Unidad', 2150.00, 15),
 ('PROD-INV-016', 'Inversor Solar Híbrido Trifásico 10kW con conexión a red y batería', 'Unidad', 1450.00, 16);
-
--- 6. POBLADO: BODEGA / DEPÓSITO (15 registros)
 INSERT INTO bodega (codigo_bodega, nombre, tipo_deposito, ubicacion_terminal, capacidad_max_pallets, temperatura_controlada, responsable_bodega) VALUES
 ('BOD-01', 'Bodega Central Puerto Corinto A1', 'Depósito Temporal', 'Terminal Portuaria Corinto, Muelle 1', 1200, FALSE, 'Ing. Mario Silva'),
 ('BOD-02', 'Bodega de Retención Fiscal y Custodia 2', 'Bienes Incautados', 'Terminal Portuaria Corinto, Sector B2', 450, FALSE, 'Cap. Ernesto Barquero'),
@@ -351,48 +274,42 @@ INSERT INTO bodega (codigo_bodega, nombre, tipo_deposito, ubicacion_terminal, ca
 ('BOD-13', 'Depósito Automotriz Patio 1', 'Depósito Temporal', 'Puerto Corinto, Explanada Vehicular Norte', 800, FALSE, 'Sr. Gonzalo Pineda'),
 ('BOD-14', 'Depósito de Carga Consolidada LCL', 'Depósito Temporal', 'Centro Logístico Nejapa', 900, FALSE, 'Licda. Brenda Somarriba'),
 ('BOD-15', 'Almacén Fiscal Especializado Energía Solar', 'Almacén Fiscal', 'Parque Industrial Las Colinas', 550, FALSE, 'Ing. David Arana');
-
--- 7. POBLADO: DECLARACIÓN ADUANERA (16 registros, fechas octubre 2026 y previas)
 INSERT INTO declaracion_aduanera (numero_dua, fecha_registro, regimen, canal_aforo, estado, id_operador, id_agente, id_pais_origen, total_fob_usd, total_arancel_usd) VALUES
-('DUA-2026-00101', '2026-10-02', 'Importacion Definitiva', 'Rojo', 'Retenida', 1, 1, 1, 85000.00, 0.00),     -- China, Laptops (Bodega 2)
-('DUA-2026-00102', '2026-10-04', 'Importacion Definitiva', 'Rojo', 'Retenida', 5, 2, 1, 92000.00, 0.00),     -- China, Smartphones (Bodega 2)
-('DUA-2026-00103', '2026-10-05', 'Importacion Definitiva', 'Amarillo', 'Liberada', 4, 3, 4, 285000.00, 57000.00),-- Japón, Camionetas
-('DUA-2026-00104', '2026-10-08', 'Importacion Definitiva', 'Rojo', 'En Inspección', 7, 4, 3, 48000.00, 4800.00), -- Alemania, Químicos
-('DUA-2026-00105', '2026-10-10', 'Importacion Definitiva', 'Verde', 'Liberada', 3, 5, 5, 36250.00, 1812.50),  -- México, Medicamentos
-('DUA-2026-00106', '2026-10-12', 'Importacion Definitiva', 'Rojo', 'Retenida', 8, 6, 1, 60000.00, 9000.00),    -- China, Smart TVs (Bodega 2)
-('DUA-2026-00107', '2026-10-14', 'Deposito Aduanero', 'Amarillo', 'Retenida', 12, 7, 16, 28800.00, 8640.00),  -- Chile, Vinos (Bodega 2)
-('DUA-2026-00108', '2026-10-15', 'Importacion Definitiva', 'Verde', 'Liberada', 13, 8, 1, 115000.00, 0.00),   -- China, Paneles solares
-('DUA-2026-00109', '2026-10-16', 'Transito Aduanero', 'Verde', 'Liberada', 2, 9, 10, 45000.00, 0.00),         -- Colombia a Honduras
-('DUA-2026-00110', '2026-10-18', 'Importacion Definitiva', 'Rojo', 'Retenida', 16, 10, 1, 25000.00, 3750.00),  -- China, Calzado (Bodega 2)
-('DUA-2026-00111', '2026-10-19', 'Importacion Definitiva', 'Amarillo', 'Registrada', 11, 11, 6, 97000.00, 4850.00), -- Brasil, Acero
-('DUA-2026-00112', '2026-10-20', 'Importacion Definitiva', 'Rojo', 'Decomisada', 8, 12, 1, 35000.00, 5250.00), -- China, Falsificación
-('DUA-2026-00113', '2026-10-21', 'Importacion Definitiva', 'Verde', 'Liberada', 9, 13, 2, 64500.00, 0.00),    -- USA, Equipos médicos
-('DUA-2026-00114', '2026-10-22', 'Exportacion Definitiva', 'Verde', 'Liberada', 10, 14, 10, 72000.00, 0.00),  -- Mariscos a USA
-('DUA-2026-00115', '2026-09-25', 'Importacion Definitiva', 'Amarillo', 'Liberada', 15, 1, 2, 76000.00, 34200.00), -- USA, Arroz
-('DUA-2026-00116', '2026-09-28', 'Importacion Definitiva', 'Rojo', 'Retenida', 5, 2, 7, 72500.00, 0.00);      -- Corea del Sur, Inversores
-
--- 8. POBLADO: DETALLE DE DECLARACIÓN (18 registros que asocian declaraciones y productos)
+('DUA-2026-00101', '2026-10-02', 'Importacion Definitiva', 'Rojo', 'Retenida', 1, 1, 1, 85000.00, 0.00),
+('DUA-2026-00102', '2026-10-04', 'Importacion Definitiva', 'Rojo', 'Retenida', 5, 2, 1, 92000.00, 0.00),
+('DUA-2026-00103', '2026-10-05', 'Importacion Definitiva', 'Amarillo', 'Liberada', 4, 3, 4, 285000.00, 57000.00),
+('DUA-2026-00104', '2026-10-08', 'Importacion Definitiva', 'Rojo', 'En Inspección', 7, 4, 3, 48000.00, 4800.00),
+('DUA-2026-00105', '2026-10-10', 'Importacion Definitiva', 'Verde', 'Liberada', 3, 5, 5, 36250.00, 1812.50),
+('DUA-2026-00106', '2026-10-12', 'Importacion Definitiva', 'Rojo', 'Retenida', 8, 6, 1, 60000.00, 9000.00),
+('DUA-2026-00107', '2026-10-14', 'Deposito Aduanero', 'Amarillo', 'Retenida', 12, 7, 16, 28800.00, 8640.00),
+('DUA-2026-00108', '2026-10-15', 'Importacion Definitiva', 'Verde', 'Liberada', 13, 8, 1, 115000.00, 0.00),
+('DUA-2026-00109', '2026-10-16', 'Transito Aduanero', 'Verde', 'Liberada', 2, 9, 10, 45000.00, 0.00),
+('DUA-2026-00110', '2026-10-18', 'Importacion Definitiva', 'Rojo', 'Retenida', 16, 10, 1, 25000.00, 3750.00),
+('DUA-2026-00111', '2026-10-19', 'Importacion Definitiva', 'Amarillo', 'Registrada', 11, 11, 6, 97000.00, 4850.00),
+('DUA-2026-00112', '2026-10-20', 'Importacion Definitiva', 'Rojo', 'Decomisada', 8, 12, 1, 35000.00, 5250.00),
+('DUA-2026-00113', '2026-10-21', 'Importacion Definitiva', 'Verde', 'Liberada', 9, 13, 2, 64500.00, 0.00),
+('DUA-2026-00114', '2026-10-22', 'Exportacion Definitiva', 'Verde', 'Liberada', 10, 14, 10, 72000.00, 0.00),
+('DUA-2026-00115', '2026-09-25', 'Importacion Definitiva', 'Amarillo', 'Liberada', 15, 1, 2, 76000.00, 34200.00),
+('DUA-2026-00116', '2026-09-28', 'Importacion Definitiva', 'Rojo', 'Retenida', 5, 2, 7, 72500.00, 0.00);
 INSERT INTO detalle_declaracion (id_declaracion, id_producto, cantidad, valor_unitario_usd, valor_total_fob, flete_seguro_usd, arancel_aplicado_usd) VALUES
-(1, 1, 100.00, 850.00, 85000.00, 3200.00, 0.00),       -- DUA 101: 100 Laptops
-(2, 2, 100.00, 920.00, 92000.00, 2800.00, 0.00),       -- DUA 102: 100 Smartphones
-(3, 4, 10.00, 28500.00, 285000.00, 8500.00, 57000.00), -- DUA 103: 10 Camionetas Hilux
-(4, 12, 100.00, 480.00, 48000.00, 4100.00, 4800.00),   -- DUA 104: 100 Tambores Solventes
-(5, 5, 2500.00, 14.50, 36250.00, 1500.00, 1812.50),    -- DUA 105: 2500 Cajas Amoxicilina
-(6, 3, 50.00, 1200.00, 60000.00, 3100.00, 9000.00),    -- DUA 106: 50 Smart TVs
-(7, 6, 300.00, 96.00, 28800.00, 2200.00, 8640.00),     -- DUA 107: 300 Cajas Vino
-(8, 10, 1000.00, 115.00, 115000.00, 5600.00, 0.00),    -- DUA 108: 1000 Paneles Solares
-(9, 8, 360.00, 125.00, 45000.00, 2000.00, 4500.00),    -- DUA 109: 360 Cajas Camisetas
-(10, 9, 595.00, 42.00, 24990.00, 1800.00, 3748.50),    -- DUA 110: 595 Zapatos Seguridad
-(11, 13, 2000.00, 48.50, 97000.00, 6200.00, 4850.00),  -- DUA 111: 2000 Quintales Varillas
-(12, 8, 280.00, 125.00, 35000.00, 1900.00, 3500.00),   -- DUA 112: Camisetas no declaradas
-(13, 15, 30.00, 2150.00, 64500.00, 2500.00, 0.00),     -- DUA 113: 30 Monitores Médicos
-(14, 14, 300.00, 240.00, 72000.00, 4500.00, 0.00),     -- DUA 114: Exportación carne/mariscos
-(15, 11, 2000.00, 38.00, 76000.00, 5200.00, 34200.00), -- DUA 115: 2000 Sacos Arroz
-(16, 16, 50.00, 1450.00, 72500.00, 3300.00, 0.00),     -- DUA 116: 50 Inversores Solares
-(1, 2, 20.00, 920.00, 18400.00, 800.00, 0.00),         -- DUA 101 ítem adicional (20 smartphones)
-(8, 16, 10.00, 1450.00, 14500.00, 900.00, 0.00);       -- DUA 108 ítem adicional (10 inversores)
-
--- 9. POBLADO: CONTENEDOR (16 registros, contenedores estándar ISO 6346)
+(1, 1, 100.00, 850.00, 85000.00, 3200.00, 0.00),
+(2, 2, 100.00, 920.00, 92000.00, 2800.00, 0.00),
+(3, 4, 10.00, 28500.00, 285000.00, 8500.00, 57000.00),
+(4, 12, 100.00, 480.00, 48000.00, 4100.00, 4800.00),
+(5, 5, 2500.00, 14.50, 36250.00, 1500.00, 1812.50),
+(6, 3, 50.00, 1200.00, 60000.00, 3100.00, 9000.00),
+(7, 6, 300.00, 96.00, 28800.00, 2200.00, 8640.00),
+(8, 10, 1000.00, 115.00, 115000.00, 5600.00, 0.00),
+(9, 8, 360.00, 125.00, 45000.00, 2000.00, 4500.00),
+(10, 9, 595.00, 42.00, 24990.00, 1800.00, 3748.50),
+(11, 13, 2000.00, 48.50, 97000.00, 6200.00, 4850.00),
+(12, 8, 280.00, 125.00, 35000.00, 1900.00, 3500.00),
+(13, 15, 30.00, 2150.00, 64500.00, 2500.00, 0.00),
+(14, 14, 300.00, 240.00, 72000.00, 4500.00, 0.00),
+(15, 11, 2000.00, 38.00, 76000.00, 5200.00, 34200.00),
+(16, 16, 50.00, 1450.00, 72500.00, 3300.00, 0.00),
+(1, 2, 20.00, 920.00, 18400.00, 800.00, 0.00),
+(8, 16, 10.00, 1450.00, 14500.00, 900.00, 0.00);
 INSERT INTO contenedor (numero_contenedor, tipo, peso_tara_kg, peso_bruto_kg, numero_sello_seguridad, id_declaracion) VALUES
 ('MSKU2948102', 'Dry 40ft', 3800.00, 18450.00, 'SEAL-MAERSK-9011', 1),
 ('MSKU8831094', 'Dry 40ft', 3850.00, 19200.00, 'SEAL-MAERSK-9012', 2),
@@ -410,17 +327,12 @@ INSERT INTO contenedor (numero_contenedor, tipo, peso_tara_kg, peso_bruto_kg, nu
 ('MSKU5581920', 'Reefer 40ft', 4420.00, 22400.00, 'SEAL-MAERSK-FR-88', 14),
 ('CMAU2291039', 'Dry 40ft', 3850.00, 28400.00, 'SEAL-CMA-9922', 15),
 ('COSU4491029', 'High Cube 40ft', 3920.00, 17800.00, 'SEAL-COSCO-3341', 16);
-
--- 10. POBLADO: FUNCIONARIO (16 funcionarios aduaneros con relación recursiva de supervisor)
--- Primero creamos los directores/supervisores generales (id_supervisor NULL)
 INSERT INTO funcionario (codigo_empleado, nombre_completo, cargo, departamento, correo_institucional, id_supervisor) VALUES
 ('EMP-001', 'Lic. Rodrigo Montenegro Salazar', 'Director General de Aduanas', 'Fiscalización', 'rodrigo.montenegro@aduana.gob.ni', NULL),
 ('EMP-002', 'Ing. Gabriel Alejandro Morales Pao', 'Jefe de Operaciones Portuarias', 'Operaciones Portuarias', 'gabriel.morales@aduana.gob.ni', 1),
 ('EMP-003', 'Licda. Martha Lorena Jarquín Ruiz', 'Supervisora General de Aforo', 'Aforo e Inspección', 'martha.jarquin@aduana.gob.ni', 1),
 ('EMP-004', 'Ing. Silvio José Gutiérrez Calero', 'Coordinador de Almacenes y Depósitos', 'Almacenes y Custodia', 'silvio.gutierrez@aduana.gob.ni', 1),
 ('EMP-005', 'Abog. Tatiana Milagros Rizo Vivas', 'Jefa de Asesoría Jurídica y Decomisos', 'Asesoría Jurídica', 'tatiana.rizo@aduana.gob.ni', 1);
-
--- Luego los inspectores y oficiales que reportan a sus respectivos jefes
 INSERT INTO funcionario (codigo_empleado, nombre_completo, cargo, departamento, correo_institucional, id_supervisor) VALUES
 ('EMP-006', 'Lic. Marvin Antonio Guido Pérez', 'Inspector de Aforo Físico Senior', 'Aforo e Inspección', 'marvin.guido@aduana.gob.ni', 3),
 ('EMP-007', 'Licda. Karla Vanessa Lovo Espinoza', 'Inspectora de Aforo Documental', 'Aforo e Inspección', 'karla.lovo@aduana.gob.ni', 3),
@@ -433,8 +345,6 @@ INSERT INTO funcionario (codigo_empleado, nombre_completo, cargo, departamento, 
 ('EMP-014', 'Licda. Lucía Amanda Peralta Cruz', 'Inspectora de Mercancías Tecnológicas', 'Aforo e Inspección', 'lucia.peralta@aduana.gob.ni', 3),
 ('EMP-015', 'Abog. Mauricio José Tinoco Marenco', 'Oficial de Actas de Retención', 'Asesoría Jurídica', 'mauricio.tinoco@aduana.gob.ni', 5),
 ('EMP-016', 'Ing. Javier Alfonso Mendoza Gómez', 'Inspector de Tránsito Fronterizo', 'Operaciones Portuarias', 'javier.mendoza@aduana.gob.ni', 2);
-
--- 11. POBLADO: INSPECCIÓN (16 inspecciones realizadas)
 INSERT INTO inspeccion (numero_acta, fecha_inspeccion, tipo_inspeccion, resultado, observaciones, id_declaracion, id_funcionario) VALUES
 ('ACTA-2026-0089', '2026-10-03 10:30:00', 'Física intrusiva', 'Con observaciones', 'Discrepancia en números de serie y firmware. Mercancía trasladada a Bodega 2 en retención preventiva.', 1, 6),
 ('ACTA-2026-0090', '2026-10-05 14:15:00', 'Física no intrusiva', 'Con observaciones', 'Inspección por escáner de rayos X arrojó densidades atípicas en 10 pallets. Requiere aforo documental y técnico en Bodega 2.', 2, 10),
@@ -452,28 +362,23 @@ INSERT INTO inspeccion (numero_acta, fecha_inspeccion, tipo_inspeccion, resultad
 ('ACTA-2026-0102', '2026-10-22 17:00:00', 'Física intrusiva', 'Conforme', 'Inspección de cadena de frío y certificado fitosanitario de exportación en muelle de carga.', 14, 10),
 ('ACTA-2026-0103', '2026-09-26 14:00:00', 'Documental', 'Conforme', 'Aranceles arrocero cancelados en ventanilla bancaria autorizada.', 15, 7),
 ('ACTA-2026-0104', '2026-09-29 11:30:00', 'Física no intrusiva', 'Con observaciones', 'Falta certificado de homologación para inversores de 10kW. Retenido en Bodega 2 hasta presentar prueba técnica.', 16, 14);
-
--- 12. POBLADO: INVENTARIO / STOCK EN BODEGA (16 registros)
--- Nótese que hay mercancías en Bodega 2 (Retenidas y de China, respondiendo a la pregunta del agente)
 INSERT INTO inventario (id_bodega, id_producto, id_declaracion, cantidad_actual, fecha_ingreso_bodega, ubicacion_pasillo_rack, estado_stock) VALUES
-(2, 1, 1, 100.00, '2026-10-03 12:00:00', 'Rack-B2-01-A', 'Retenido'),       -- Laptops China en Bodega 2
-(2, 2, 2, 100.00, '2026-10-05 16:00:00', 'Rack-B2-01-B', 'Retenido'),       -- Smartphones China en Bodega 2
-(13, 4, 3, 10.00, '2026-10-05 11:00:00', 'Patio-Norte-Fila-3', 'Liberado'),  -- Camionetas Toyota
-(6, 12, 4, 100.00, '2026-10-08 14:00:00', 'Galpon-Q-Sector-1', 'Bajo Inspección'), -- Solventes Alemania
-(10, 5, 5, 2500.00, '2026-10-10 17:30:00', 'Camara-Med-02', 'Liberado'),     -- Amoxicilina México
-(2, 3, 6, 50.00, '2026-10-13 15:00:00', 'Rack-B2-02-C', 'Retenido'),         -- Smart TVs China en Bodega 2
-(3, 6, 7, 300.00, '2026-10-14 12:00:00', 'Camara-Fria-01', 'Retenido'),      -- Vinos Chile
-(15, 10, 8, 1000.00, '2026-10-15 10:00:00', 'Nave-Solar-Est-4', 'Liberado'),  -- Paneles Solares
-(1, 8, 9, 360.00, '2026-10-16 18:00:00', 'Rack-B1-04-D', 'Liberado'),        -- Camisetas algodón
-(2, 9, 10, 595.00, '2026-10-18 16:30:00', 'Rack-B2-03-A', 'Retenido'),       -- Calzado China en Bodega 2
-(9, 13, 11, 2000.00, '2026-10-19 13:00:00', 'Patio-Aceros-G2', 'Retenido'),   -- Varillas de Acero
-(12, 8, 12, 280.00, '2026-10-21 17:30:00', 'Jaula-Judicial-1', 'Decomisado'),-- Camisetas decomisadas
-(4, 15, 13, 30.00, '2026-10-22 11:00:00', 'Rack-Seg-01-A', 'Liberado'),      -- Monitores Hospitalarios
-(3, 14, 14, 300.00, '2026-10-22 18:30:00', 'Camara-Fria-03', 'Liberado'),     -- Lomo de Res para exportación
-(1, 11, 15, 2000.00, '2026-09-25 15:00:00', 'Silo-Seco-02', 'Liberado'),     -- Arroz saco 50kg
-(2, 16, 16, 50.00, '2026-09-28 14:00:00', 'Rack-B2-04-A', 'Retenido');       -- Inversores Corea en Bodega 2
-
--- 13. POBLADO: MOVIMIENTO DE INVENTARIO (16 registros de kardex y auditoría física)
+(2, 1, 1, 100.00, '2026-10-03 12:00:00', 'Rack-B2-01-A', 'Retenido'),
+(2, 2, 2, 100.00, '2026-10-05 16:00:00', 'Rack-B2-01-B', 'Retenido'),
+(13, 4, 3, 10.00, '2026-10-05 11:00:00', 'Patio-Norte-Fila-3', 'Liberado'),
+(6, 12, 4, 100.00, '2026-10-08 14:00:00', 'Galpon-Q-Sector-1', 'Bajo Inspección'),
+(10, 5, 5, 2500.00, '2026-10-10 17:30:00', 'Camara-Med-02', 'Liberado'),
+(2, 3, 6, 50.00, '2026-10-13 15:00:00', 'Rack-B2-02-C', 'Retenido'),
+(3, 6, 7, 300.00, '2026-10-14 12:00:00', 'Camara-Fria-01', 'Retenido'),
+(15, 10, 8, 1000.00, '2026-10-15 10:00:00', 'Nave-Solar-Est-4', 'Liberado'),
+(1, 8, 9, 360.00, '2026-10-16 18:00:00', 'Rack-B1-04-D', 'Liberado'),
+(2, 9, 10, 595.00, '2026-10-18 16:30:00', 'Rack-B2-03-A', 'Retenido'),
+(9, 13, 11, 2000.00, '2026-10-19 13:00:00', 'Patio-Aceros-G2', 'Retenido'),
+(12, 8, 12, 280.00, '2026-10-21 17:30:00', 'Jaula-Judicial-1', 'Decomisado'),
+(4, 15, 13, 30.00, '2026-10-22 11:00:00', 'Rack-Seg-01-A', 'Liberado'),
+(3, 14, 14, 300.00, '2026-10-22 18:30:00', 'Camara-Fria-03', 'Liberado'),
+(1, 11, 15, 2000.00, '2026-09-25 15:00:00', 'Silo-Seco-02', 'Liberado'),
+(2, 16, 16, 50.00, '2026-09-28 14:00:00', 'Rack-B2-04-A', 'Retenido');
 INSERT INTO movimiento_inventario (id_inventario, tipo_movimiento, fecha_movimiento, cantidad, id_bodega_origen, id_bodega_destino, motivo, autorizado_por) VALUES
 (1, 'Ingreso Inicial', '2026-10-03 12:30:00', 100.00, NULL, 2, 'Recepción desde contenedor por orden de retención preventiva', 4),
 (2, 'Ingreso Inicial', '2026-10-05 16:30:00', 100.00, NULL, 2, 'Ingreso por discrepancia de aforo no intrusivo', 4),
@@ -491,15 +396,7 @@ INSERT INTO movimiento_inventario (id_inventario, tipo_movimiento, fecha_movimie
 (14, 'Salida por Levante', '2026-10-23 06:00:00', 300.00, 3, NULL, 'Embarque en buque frigorífico con destino exterior', 2),
 (15, 'Salida por Levante', '2026-09-28 10:00:00', 2000.00, 1, NULL, 'Retiro autorizado de granel arrocero', 3),
 (16, 'Traslado Interno', '2026-10-01 09:30:00', 50.00, 1, 2, 'Traslado de patio general a Bodega 2 por falta de homologación', 4);
-
--- ============================================================================
--- PARTE III: 8 CONSULTAS SELECT ANALÍTICAS CON NEGOCIO REAL
--- (Incluye JOIN, WHERE, GROUP BY, HAVING, ORDER BY)
--- ============================================================================
-
--- CONSULTA 1: Total de declaraciones y valor CIF/FOB registrado en octubre 2026 por régimen.
--- Responde: "¿Cuántas declaraciones se registraron en octubre y cuánto valor representan?"
-SELECT 
+SELECT
     d.regimen,
     COUNT(d.id_declaracion) AS total_declaraciones,
     SUM(d.total_fob_usd) AS valor_fob_acumulado_usd,
@@ -509,9 +406,6 @@ FROM declaracion_aduanera d
 WHERE d.fecha_registro BETWEEN '2026-10-01' AND '2026-10-31'
 GROUP BY d.regimen
 ORDER BY valor_fob_acumulado_usd DESC;
-
--- CONSULTA 2: Mercancías retenidas físicamente en bodegas, con detalle de bodega y país de origen.
--- Responde directamente a: "¿Qué mercancías de China siguen retenidas en la bodega 2?" y general.
 SELECT 
     b.codigo_bodega,
     b.nombre AS nombre_bodega,
@@ -529,9 +423,6 @@ INNER JOIN declaracion_aduanera d ON inv.id_declaracion = d.id_declaracion
 INNER JOIN pais p ON d.id_pais_origen = p.id_pais
 WHERE inv.estado_stock = 'Retenido'
 ORDER BY b.codigo_bodega ASC, inv.cantidad_actual DESC;
-
--- CONSULTA 3: País de origen con mayor flujo de contenedores recibidos y peso bruto total.
--- Responde: "¿Cuál es el país de origen con más contenedores recibidos?"
 SELECT 
     p.nombre AS pais_origen,
     p.codigo_iso,
@@ -544,9 +435,6 @@ INNER JOIN pais p ON d.id_pais_origen = p.id_pais
 GROUP BY p.nombre, p.codigo_iso
 HAVING COUNT(c.id_contenedor) > 0
 ORDER BY total_contenedores DESC, peso_bruto_total_kg DESC;
-
--- CONSULTA 4: Top 5 de importadores con mayor valor FOB declarado en mercancías y estado de riesgo.
--- Responde: "¿Qué importador ha declarado el mayor valor total en mercancías?"
 SELECT 
     op.nombre_razon_social,
     op.nit_ruc,
@@ -559,9 +447,6 @@ INNER JOIN declaracion_aduanera d ON op.id_operador = d.id_operador
 GROUP BY op.id_operador, op.nombre_razon_social, op.nit_ruc, op.calificacion_riesgo
 ORDER BY total_fob_declarado_usd DESC
 LIMIT 5;
-
--- CONSULTA 5: Inspecciones con resultado "Con observaciones" o anomalías y sus responsables jerárquicos.
--- Responde: "¿Qué inspecciones tuvieron resultado 'con observaciones' y quién las realizó y supervisó?"
 SELECT 
     i.numero_acta,
     i.fecha_inspeccion,
@@ -578,9 +463,6 @@ INNER JOIN funcionario f ON i.id_funcionario = f.id_funcionario
 LEFT JOIN funcionario sup ON f.id_supervisor = sup.id_funcionario
 WHERE i.resultado IN ('Con observaciones', 'Decomiso preventivo')
 ORDER BY i.fecha_inspeccion DESC;
-
--- CONSULTA 6: Stock consolidado disponible por producto en todas las bodegas.
--- Responde: "¿Cuánto stock queda del producto X en todas las bodegas?"
 SELECT 
     prod.codigo_sku,
     prod.descripcion AS producto,
@@ -595,9 +477,6 @@ INNER JOIN categoria_arancelaria cat ON prod.id_categoria = cat.id_categoria
 INNER JOIN bodega b ON inv.id_bodega = b.id_bodega
 GROUP BY prod.id_producto, prod.codigo_sku, prod.descripcion, cat.descripcion_oficial, prod.unidad_medida
 ORDER BY stock_total DESC;
-
--- CONSULTA 7: Recaudación arancelaria desglosada por capítulo del Sistema Armonizado.
--- Responde: "¿Qué capítulos arancelarios generan la mayor recaudación fiscal para la aduana?"
 SELECT 
     cat.capitulo AS capitulo_sa,
     cat.codigo_partida,
@@ -611,9 +490,6 @@ INNER JOIN categoria_arancelaria cat ON prod.id_categoria = cat.id_categoria
 GROUP BY cat.capitulo, cat.codigo_partida, cat.descripcion_oficial
 HAVING SUM(det.arancel_aplicado_usd) > 0
 ORDER BY arancel_total_recaudado_usd DESC;
-
--- CONSULTA 8: Auditoría de movimientos de inventario por bodega y funcionario autorizador.
--- Responde: "¿Qué movimientos de traslado y salida se han efectuado y quién los autorizó?"
 SELECT 
     m.id_movimiento,
     m.fecha_movimiento,
@@ -631,13 +507,6 @@ LEFT JOIN bodega bo ON m.id_bodega_origen = bo.id_bodega
 LEFT JOIN bodega bd ON m.id_bodega_destino = bd.id_bodega
 INNER JOIN funcionario f ON m.autorizado_por = f.id_funcionario
 ORDER BY m.fecha_movimiento DESC;
-
--- ============================================================================
--- SEGURIDAD: USUARIO DE SOLO LECTURA PARA EL AGENTE DE IA EN n8n
--- ============================================================================
--- Este bloque crea un usuario seguro con permisos mínimos (SELECT exclusivamente).
--- Evita ataques de inyección SQL destructiva (DROP, DELETE, UPDATE).
-
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'n8n_readonly') THEN
@@ -645,10 +514,7 @@ BEGIN
     END IF;
 END
 $$;
-
 GRANT CONNECT ON DATABASE aduana_lab3 TO n8n_readonly;
 GRANT USAGE ON SCHEMA public TO n8n_readonly;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO n8n_readonly;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO n8n_readonly;
-
--- Fin del script SQL
