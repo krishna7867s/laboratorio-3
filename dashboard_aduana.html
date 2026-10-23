@@ -3,543 +3,642 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema de Inventario Aduanero - Dashboard & Agente IA (Laboratorio #3)</title>
+<title>Sistema Integrado de Gestión y Fiscalización Aduanera | SIGAD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary: #0284c7;
-    --primary-dark: #0369a1;
-    --bg-dark: #0f172a;
-    --card-bg: #1e293b;
-    --border: #334155;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --accent: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
+    --primary: #0f2d59;
+    --primary-dark: #091a36;
+    --primary-light: #1e427b;
+    --accent: #0056b3;
+    --neutral-50: #f8fafc;
+    --neutral-100: #f1f5f9;
+    --neutral-200: #e2e8f0;
+    --neutral-300: #cbd5e1;
+    --neutral-600: #475569;
+    --neutral-700: #334155;
+    --neutral-800: #1e293b;
+    --neutral-900: #0f172a;
+    --status-success-bg: #ecfdf5;
+    --status-success-text: #065f46;
+    --status-success-border: #a7f3d0;
+    --status-warning-bg: #fffbeb;
+    --status-warning-text: #92400e;
+    --status-warning-border: #fde68a;
+    --status-danger-bg: #fef2f2;
+    --status-danger-text: #991b1b;
+    --status-danger-border: #fecaca;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Consolas', monospace;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg-dark);
-    color: var(--text-main);
+    font-family: var(--font-sans);
+    background-color: #f4f6f9;
+    color: var(--neutral-800);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
   }
 
-  header {
-    background: #1e293b;
-    border-bottom: 1px solid var(--border);
-    padding: 14px 24px;
+  /* BARRA SUPERIOR INSTITUCIONAL */
+  .top-banner {
+    background-color: var(--primary-dark);
+    color: #ffffff;
+    padding: 8px 32px;
+    font-size: 11px;
+    font-weight: 500;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
   }
-  .logo-group {
+  .top-banner .org-text {
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .top-banner .session-info {
+    color: var(--neutral-300);
+    display: flex;
+    gap: 16px;
+  }
+
+  /* ENCABEZADO PRINCIPAL DE BANCO / ENTIDAD PÚBLICA */
+  header.main-header {
+    background-color: #ffffff;
+    border-bottom: 2px solid var(--neutral-200);
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .brand-group {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
   }
-  .logo-icon {
-    width: 38px;
-    height: 38px;
-    background: linear-gradient(135deg, #0284c7, #38bdf8);
-    border-radius: 8px;
+  .seal-logo {
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--primary);
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
-    font-weight: bold;
-    color: white;
+    background: #ffffff;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 1px;
   }
-  .logo-group h1 { font-size: 17px; font-weight: 700; color: #f8fafc; }
-  .logo-group p { font-size: 11px; color: var(--text-muted); }
-  .badge-extra {
-    background: rgba(16, 185, 129, 0.15);
-    color: #34d399;
-    border: 1px solid rgba(16, 185, 129, 0.4);
-    padding: 4px 10px;
-    border-radius: 9999px;
+  .title-group h1 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: -0.2px;
+  }
+  .title-group p {
+    font-size: 12px;
+    color: var(--neutral-600);
+    margin-top: 1px;
+  }
+  .system-badge {
+    background-color: var(--neutral-100);
+    border: 1px solid var(--neutral-300);
+    padding: 6px 12px;
+    border-radius: 4px;
     font-size: 11px;
     font-weight: 600;
+    color: var(--neutral-700);
+    text-align: right;
+  }
+  .system-badge span {
+    display: block;
+    color: #15803d;
+    font-size: 10px;
+    text-transform: uppercase;
   }
 
-  main {
+  /* ESTRUCTURA PRINCIPAL */
+  .layout-container {
+    padding: 24px 32px;
     flex: 1;
-    padding: 20px 24px;
+    max-width: 1600px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  /* TARJETAS DE INDICADORES (KPIs) - ESTILO FINANCIERO */
+  .metrics-grid {
     display: grid;
-    grid-template-columns: 1fr 440px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .metric-card {
+    background: #ffffff;
+    border: 1px solid var(--neutral-200);
+    border-radius: 4px;
+    padding: 16px 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    position: relative;
+    border-top: 3px solid var(--primary);
+  }
+  .metric-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--neutral-600);
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .metric-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--neutral-900);
+    font-family: var(--font-mono);
+  }
+  .metric-footer {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--neutral-600);
+    padding-top: 6px;
+    border-top: 1px solid var(--neutral-100);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* PANELES DE CONTENIDO */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
     gap: 20px;
   }
 
-  /* KPIs */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    margin-bottom: 20px;
-  }
-  .kpi-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px 16px;
+  .panel {
+    background: #ffffff;
+    border: 1px solid var(--neutral-200);
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    border-top: 3px solid var(--primary);
-  }
-  .kpi-card.green { border-top-color: var(--accent); }
-  .kpi-card.amber { border-top-color: var(--warning); }
-  .kpi-card.red { border-top-color: var(--danger); }
-  .kpi-title { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
-  .kpi-value { font-size: 22px; font-weight: 700; color: #ffffff; }
-  .kpi-sub { font-size: 11px; color: var(--accent); }
-
-  /* Panel izquierdo: tablas y queries */
-  .content-panel {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
   }
   .panel-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--neutral-200);
+    background-color: #fafbfc;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 10px;
   }
-  .panel-header h2 { font-size: 14px; color: #38bdf8; }
+  .panel-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .panel-body {
+    padding: 16px 18px;
+  }
 
-  /* Preguntas rápidas */
-  .quick-questions-label { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; }
-  .quick-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+  /* LISTA DE CONSULTAS INSTITUCIONALES (AUDITORÍA) */
+  .query-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
   }
-  .btn-quick {
-    background: #0f172a;
-    border: 1px solid #334155;
-    color: #e2e8f0;
-    padding: 8px 10px;
-    border-radius: 6px;
-    font-size: 11px;
+  .query-item {
+    background: #ffffff;
+    border: 1px solid var(--neutral-200);
+    padding: 10px 12px;
+    border-radius: 4px;
     text-align: left;
     cursor: pointer;
-    transition: all 0.2s;
+    font-size: 12px;
+    font-family: var(--font-sans);
+    color: var(--neutral-700);
+    transition: all 0.15s ease-in-out;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
-  .btn-quick:hover {
-    background: #1e3a8a;
-    border-color: #3b82f6;
+  .query-item:hover {
+    background: var(--neutral-100);
+    border-color: var(--primary);
+    color: var(--primary-dark);
+  }
+  .query-item.active {
+    background: var(--primary);
+    border-color: var(--primary);
     color: #ffffff;
+    font-weight: 600;
+  }
+  .query-number {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    opacity: 0.7;
+    margin-right: 8px;
   }
 
-  /* Visor de datos */
-  .table-container {
-    overflow-x: auto;
-    max-height: 280px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+  /* TABLAS DE DATOS EMPRESARIALES */
+  .table-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--neutral-200);
   }
-  table {
+  .table-summary-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--neutral-900);
+  }
+  .table-meta {
+    font-size: 11px;
+    color: var(--neutral-600);
+    font-family: var(--font-mono);
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--neutral-200);
+    border-radius: 4px;
+    max-height: 520px;
+  }
+  table.data-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 11px;
-  }
-  th {
-    background: #0f172a;
-    color: #94a3b8;
+    font-size: 12px;
     text-align: left;
-    padding: 8px 10px;
+    white-space: nowrap;
+  }
+  table.data-table th {
+    background-color: var(--neutral-100);
+    color: var(--neutral-700);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 10.5px;
+    letter-spacing: 0.5px;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--neutral-200);
     position: sticky;
     top: 0;
-    border-bottom: 1px solid var(--border);
+    z-index: 10;
   }
-  td {
-    padding: 7px 10px;
-    border-bottom: 1px solid #273549;
-    color: #cbd5e1;
+  table.data-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--neutral-200);
+    color: var(--neutral-800);
   }
-  tr:nth-child(even) { background: rgba(15, 23, 42, 0.4); }
-  .badge-status {
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 9px;
-    font-weight: 600;
+  table.data-table tr:nth-child(even) {
+    background-color: #fafbfc;
   }
-  .status-retenido { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-  .status-liberado { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-  .status-inspeccion { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+  table.data-table tr:hover {
+    background-color: #f1f5f9;
+  }
 
-  /* Chat del Agente de IA */
-  .chat-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    height: calc(100vh - 120px);
-  }
-  .chat-header {
-    background: #0369a1;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .ai-avatar {
-    width: 32px;
-    height: 32px;
-    background: #0284c7;
-    border: 2px solid white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-  }
-  .chat-header h3 { font-size: 13px; font-weight: 600; }
-  .chat-header p { font-size: 10px; color: #bae6fd; }
-
-  .chat-body {
-    flex: 1;
-    padding: 14px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: #0b1120;
-  }
-  .msg {
-    max-width: 90%;
-    padding: 10px 12px;
-    border-radius: 8px;
-    font-size: 11.5px;
-    line-height: 1.4;
-  }
-  .msg-user {
-    align-self: flex-end;
-    background: #0284c7;
-    color: white;
-    border-bottom-right-radius: 2px;
-  }
-  .msg-ai {
-    align-self: flex-start;
-    background: #1e293b;
-    border: 1px solid var(--border);
-    color: #e2e8f0;
-    border-bottom-left-radius: 2px;
-  }
-  .thought-box {
-    background: #0f172a;
-    border-left: 3px solid #38bdf8;
-    padding: 6px 8px;
-    margin: 6px 0;
+  /* INSIGNIAS INSTITUCIONALES (BADGES FORMALES) */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 2px;
     font-size: 10.5px;
-    color: #94a3b8;
-    font-family: 'Consolas', monospace;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border: 1px solid transparent;
   }
-  .sql-preview {
-    background: #030712;
-    border: 1px solid #1f2937;
-    border-radius: 4px;
-    padding: 6px 8px;
-    margin: 6px 0;
-    font-family: 'Consolas', monospace;
-    font-size: 10px;
-    color: #38bdf8;
-    white-space: pre-wrap;
+  .badge-retenido {
+    background: var(--status-danger-bg);
+    color: var(--status-danger-text);
+    border-color: var(--status-danger-border);
+  }
+  .badge-liberado {
+    background: var(--status-success-bg);
+    color: var(--status-success-text);
+    border-color: var(--status-success-border);
+  }
+  .badge-inspeccion {
+    background: var(--status-warning-bg);
+    color: var(--status-warning-text);
+    border-color: var(--status-warning-border);
+  }
+  .badge-neutral {
+    background: var(--neutral-100);
+    color: var(--neutral-700);
+    border-color: var(--neutral-300);
   }
 
-  .chat-footer {
-    padding: 10px 12px;
-    border-top: 1px solid var(--border);
-    background: var(--card-bg);
+  .mono {
+    font-family: var(--font-mono);
+  }
+  .text-right {
+    text-align: right;
+  }
+
+  /* PIE DE PÁGINA */
+  footer {
+    background: #ffffff;
+    border-top: 1px solid var(--neutral-200);
+    padding: 14px 32px;
+    font-size: 11px;
+    color: var(--neutral-600);
     display: flex;
-    gap: 8px;
+    justify-content: space-between;
+    align-items: center;
   }
-  .chat-input {
-    flex: 1;
-    background: #0f172a;
-    border: 1px solid #334155;
-    border-radius: 6px;
-    padding: 8px 12px;
-    color: #f8fafc;
-    font-size: 12px;
-    outline: none;
-  }
-  .chat-input:focus { border-color: #0284c7; }
-  .btn-send {
-    background: #0284c7;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0 14px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .btn-send:hover { background: #0369a1; }
 </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo-group">
-      <div class="logo-icon">&#x2693;</div>
-      <div>
-        <h1>DIRECCIÓN GENERAL DE ADUANAS</h1>
-        <p>Sistema Integrado de Inventario Aduanero & Fiscalización con IA | Laboratorio #3</p>
+  <!-- BANNER SUPERIOR INSTITUCIONAL -->
+  <div class="top-banner">
+    <div class="org-text">Dirección General de Aduanas | Ministerio de Hacienda y Crédito Público</div>
+    <div class="session-info">
+      <span>Sistema: SIGAD v2026.4</span>
+      <span>Base de Datos: PostgreSQL (Producción)</span>
+      <span>Terminal: Puerto Corinto / Central</span>
+    </div>
+  </div>
+
+  <!-- ENCABEZADO PRINCIPAL -->
+  <header class="main-header">
+    <div class="brand-group">
+      <div class="seal-logo">DGA</div>
+      <div class="title-group">
+        <h1>Sistema de Control de Inventario y Fiscalización Aduanera</h1>
+        <p>Módulo de Auditoría de Mercancías, Regímenes Arancelarios y Control de Depósitos</p>
       </div>
     </div>
-    <div style="display: flex; gap: 10px; align-items: center;">
-      <span class="badge-extra">+5 Puntos Extra: Canal Web Interactivo</span>
-      <span style="font-size: 11px; color: var(--text-muted);">Base: PostgreSQL | n8n Agent</span>
+    <div class="system-badge">
+      ESTADO DEL SERVICIO
+      <span>Operativo / Conexión Segura SSL</span>
     </div>
   </header>
 
-  <main>
-    <!-- Columna Izquierda: KPIs y Consultas Rápidas -->
-    <div>
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <span class="kpi-title">Declaraciones DUA</span>
-          <span class="kpi-value">16</span>
-          <span class="kpi-sub">&uarr; 14 en Octubre 2026</span>
-        </div>
-        <div class="kpi-card green">
-          <span class="kpi-title">Valor FOB Total</span>
-          <span class="kpi-value">$1,098,050</span>
-          <span class="kpi-sub">Auditoría Fiscal Activa</span>
-        </div>
-        <div class="kpi-card amber">
-          <span class="kpi-title">Mercancía Retenida</span>
-          <span class="kpi-value">845 Uds</span>
-          <span class="kpi-sub">Bodega 2 (Custodia)</span>
-        </div>
-        <div class="kpi-card red">
-          <span class="kpi-title">Contenedores Recibidos</span>
-          <span class="kpi-value">16</span>
-          <span class="kpi-sub">Mayor origen: China (6)</span>
+  <div class="layout-container">
+
+    <!-- RESUMEN DE INDICADORES FINANCIEROS Y OPERATIVOS (KPIS) -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Valor Declarado Acumulado (FOB)</div>
+        <div class="metric-value">$1,098,050.00</div>
+        <div class="metric-footer">
+          <span>Período fiscal vigente</span>
+          <span class="mono">16 Declaraciones DUA</span>
         </div>
       </div>
 
-      <div class="content-panel">
+      <div class="metric-card">
+        <div class="metric-label">Liquidación Arancelaria Efectiva</div>
+        <div class="metric-value">$121,512.50</div>
+        <div class="metric-footer">
+          <span>Tributos liquidados</span>
+          <span class="mono">Cap. 87 y 10 lideran</span>
+        </div>
+      </div>
+
+      <div class="metric-card" style="border-top-color: #b91c1c;">
+        <div class="metric-label">Mercancía bajo Retención Cautelar</div>
+        <div class="metric-value">845 Unidades</div>
+        <div class="metric-footer">
+          <span>Ubicación: Bodega 2 (Custodia)</span>
+          <span class="mono">4 Expedientes</span>
+        </div>
+      </div>
+
+      <div class="metric-card" style="border-top-color: #0369a1;">
+        <div class="metric-label">Contenedores Fiscalizados</div>
+        <div class="metric-value">16 Unidades</div>
+        <div class="metric-footer">
+          <span>Peso total bruto</span>
+          <span class="mono">289,350.00 Kg</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESTRUCTURA PRINCIPAL: MENÚ DE REPORTES A LA IZQUIERDA, TABLA A LA DERECHA -->
+    <div class="content-grid">
+
+      <!-- MENÚ DE AUDITORÍAS Y REPORTES -->
+      <div class="panel">
         <div class="panel-header">
-          <h2>CONSULTAS ANALÍTICAS Y PREGUNTAS DEL LABORATORIO</h2>
-          <span style="font-size: 11px; color: var(--text-muted);">Haga clic para consultar al Agente de IA</span>
+          <span class="panel-title">Módulo de Informes Oficiales</span>
         </div>
-
-        <div class="quick-questions-label">8 Preguntas Oficiales de Evaluación:</div>
-        <div class="quick-grid">
-          <button class="btn-quick" onclick="askQuestion(1)">1. ¿Cuántas declaraciones de importación se registraron en octubre?</button>
-          <button class="btn-quick" onclick="askQuestion(2)">2. ¿Qué mercancías de China siguen retenidas en la bodega 2?</button>
-          <button class="btn-quick" onclick="askQuestion(3)">3. ¿Cuál es el país de origen con más contenedores recibidos?</button>
-          <button class="btn-quick" onclick="askQuestion(4)">4. ¿Qué importador ha declarado el mayor valor total en mercancías?</button>
-          <button class="btn-quick" onclick="askQuestion(5)">5. ¿Qué inspecciones tuvieron resultado "con observaciones" y quién las realizó?</button>
-          <button class="btn-quick" onclick="askQuestion(6)">6. ¿Cuánto stock queda del producto Laptop ThinkPad en todas las bodegas?</button>
-          <button class="btn-quick" onclick="askQuestion(7)">7. ¿Qué capítulos arancelarios generan la mayor recaudación fiscal?</button>
-          <button class="btn-quick" onclick="askQuestion(8)">8. ¿Qué movimientos de traslado y salida se han efectuado?</button>
-        </div>
-
-        <div class="panel-header" style="margin-top: 10px;">
-          <h2>REGISTRO VIVO DE INVENTARIO EN BODEGA DE CUSTODIA (BOD-02)</h2>
-          <span style="font-size: 11px; color: #f87171;">Filtro: Retenido</span>
-        </div>
-
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Bodega</th>
-                <th>País Origen</th>
-                <th>SKU</th>
-                <th>Descripción Mercancía</th>
-                <th>Cantidad</th>
-                <th>Estado</th>
-                <th>DUA Ref.</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>BOD-02</strong> (Retención)</td>
-                <td>China (CN)</td>
-                <td>PROD-LAP-001</td>
-                <td>Laptop Lenovo ThinkPad T14 Gen 4 i7</td>
-                <td>100 Uds</td>
-                <td><span class="badge-status status-retenido">Retenido</span></td>
-                <td>DUA-2026-00101</td>
-              </tr>
-              <tr>
-                <td><strong>BOD-02</strong> (Retención)</td>
-                <td>China (CN)</td>
-                <td>PROD-PHN-002</td>
-                <td>Smartphone Samsung Galaxy S24 Ultra</td>
-                <td>100 Uds</td>
-                <td><span class="badge-status status-retenido">Retenido</span></td>
-                <td>DUA-2026-00102</td>
-              </tr>
-              <tr>
-                <td><strong>BOD-02</strong> (Retención)</td>
-                <td>China (CN)</td>
-                <td>PROD-TV-003</td>
-                <td>Smart TV LG OLED 65 pulgadas 4K</td>
-                <td>50 Uds</td>
-                <td><span class="badge-status status-retenido">Retenido</span></td>
-                <td>DUA-2026-00106</td>
-              </tr>
-              <tr>
-                <td><strong>BOD-02</strong> (Retención)</td>
-                <td>China (CN)</td>
-                <td>PROD-CAL-009</td>
-                <td>Zapatos de seguridad industrial punta acero</td>
-                <td>595 Uds</td>
-                <td><span class="badge-status status-retenido">Retenido</span></td>
-                <td>DUA-2026-00110</td>
-              </tr>
-              <tr>
-                <td><strong>BOD-02</strong> (Retención)</td>
-                <td>Corea del Sur (KR)</td>
-                <td>PROD-INV-016</td>
-                <td>Inversor Solar Híbrido Trifásico 10kW</td>
-                <td>50 Uds</td>
-                <td><span class="badge-status status-retenido">Retenido</span></td>
-                <td>DUA-2026-00116</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="panel-body">
+          <p style="font-size: 11.5px; color: var(--neutral-600); margin-bottom: 12px;">
+            Seleccione el criterio de consulta formal para generar el informe de datos tabulares:
+          </p>
+          <div class="query-menu">
+            <button class="query-item active" onclick="loadReport(1, this)">
+              <span><span class="query-number">01</span> Mercancías Retenidas en Bodega 2 (China)</span>
+            </button>
+            <button class="query-item" onclick="loadReport(2, this)">
+              <span><span class="query-number">02</span> Declaraciones por Régimen (Octubre 2026)</span>
+            </button>
+            <button class="query-item" onclick="loadReport(3, this)">
+              <span><span class="query-number">03</span> Flujo de Contenedores por País de Origen</span>
+            </button>
+            <button class="query-item" onclick="loadReport(4, this)">
+              <span><span class="query-number">04</span> Ranking de Importadores por Valor FOB</span>
+            </button>
+            <button class="query-item" onclick="loadReport(5, this)">
+              <span><span class="query-number">05</span> Actas con Observaciones y Supervisores</span>
+            </button>
+            <button class="query-item" onclick="loadReport(6, this)">
+              <span><span class="query-number">06</span> Stock Físico de Productos por Bodega</span>
+            </button>
+            <button class="query-item" onclick="loadReport(7, this)">
+              <span><span class="query-number">07</span> Recaudación por Capítulo Arancelario</span>
+            </button>
+            <button class="query-item" onclick="loadReport(8, this)">
+              <span><span class="query-number">08</span> Trazabilidad de Salidas y Movimientos</span>
+            </button>
+          </div>
         </div>
       </div>
+
+      <!-- VISOR DE DATOS EN TABLA FORMAL -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title" id="reportHeader">Informe de Mercancías Retenidas en Custodia</span>
+          <button onclick="window.print()" style="padding: 4px 10px; background: white; border: 1px solid var(--neutral-300); border-radius: 3px; font-size: 11px; cursor: pointer; font-weight: 500;">Imprimir Reporte</button>
+        </div>
+        <div class="panel-body">
+          <div class="table-toolbar">
+            <div class="table-summary-title" id="reportSubHeader">Filtro aplicado: Bodega = BOD-02 | País Origen = China | Estado = Retenido</div>
+            <div class="table-meta" id="reportMeta">Registros listados: 4 tuplas</div>
+          </div>
+
+          <div class="table-wrapper">
+            <table class="data-table" id="dataTable">
+              <!-- El contenido se inyecta dinámicamente con datos reales -->
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Columna Derecha: Agente Autónomo n8n -->
-    <div class="chat-card">
-      <div class="chat-header">
-        <div class="ai-avatar">&#x1F916;</div>
-        <div>
-          <h3>Agente de IA Aduanero</h3>
-          <p>Conectado a PostgreSQL (Solo Lectura) | n8n LangChain</p>
-        </div>
-      </div>
-      <div class="chat-body" id="chatBody">
-        <div class="msg msg-ai">
-          Hola Inspector. Soy el <strong>Agente de Inteligencia Artificial de la Aduana</strong>. Estoy conectado directamente a la base de datos relacional en PostgreSQL mediante credenciales de solo lectura. Puedo responder consultas de inventario, contenedores, inspecciones y estados de retención en lenguaje natural.
-          <br><br>
-          <em>Haga clic en cualquiera de las 8 preguntas a la izquierda o escriba su consulta abajo.</em>
-        </div>
-      </div>
-      <div class="chat-footer">
-        <input type="text" class="chat-input" id="chatInput" placeholder="Escriba una pregunta al agente..." onkeypress="if(event.key==='Enter') sendCustomMessage()">
-        <button class="btn-send" onclick="sendCustomMessage()">Enviar</button>
-      </div>
+  </div>
+
+  <!-- PIE DE PÁGINA -->
+  <footer>
+    <div>
+      Dirección General de Aduanas &copy; 2026. Todos los derechos reservados.
     </div>
-  </main>
+    <div class="mono">
+      Protocolo: PostgreSQL Wire Protocol v3.0 | Codificación: UTF-8
+    </div>
+  </footer>
 
   <script>
-    const QA_DATA = {
+    const REPORTS_DATABASE = {
       1: {
-        q: "¿Cuántas declaraciones de importación se registraron en octubre?",
-        thought: "El usuario solicita el conteo y valor de declaraciones con régimen 'Importacion Definitiva' en el rango de fechas '2026-10-01' a '2026-10-31'. Ejecutaré una consulta SELECT con COUNT y SUM agrupada por régimen.",
-        sql: "SELECT regimen, COUNT(*) AS total_declaraciones, SUM(total_fob_usd) AS total_fob \nFROM declaracion_aduanera \nWHERE regimen = 'Importacion Definitiva' \n  AND fecha_registro BETWEEN '2026-10-01' AND '2026-10-31' \nGROUP BY regimen;",
-        answer: "Se registraron <strong>11 declaraciones de importación definitiva</strong> durante el mes de octubre de 2026, amparando un valor FOB total declarado de <strong>$814,250.00 USD</strong> y una recaudación proyectada de aranceles de <strong>$116,662.50 USD</strong>."
+        title: "Informe Oficial de Mercancías en Custodia Preventiva",
+        subtitle: "Filtro: Bodega = BOD-02 | País Origen = China | Estado = Retenido",
+        headers: ["Código Bodega", "Denominación Bodega", "País Origen", "Código SKU", "Descripción Mercancía", "Cantidad", "Unidad", "Ubicación Rack", "Expediente DUA", "Estado Legal"],
+        rows: [
+          ["BOD-02", "Bodega de Retención Fiscal y Custodia 2", "China (CN)", "PROD-LAP-001", "Laptop Lenovo ThinkPad T14 Gen 4 Intel i7", "100.00", "Unidad", "Rack-B2-01-A", "DUA-2026-00101", '<span class="badge badge-retenido">Retenido</span>'],
+          ["BOD-02", "Bodega de Retención Fiscal y Custodia 2", "China (CN)", "PROD-PHN-002", "Smartphone Samsung Galaxy S24 Ultra 256GB", "100.00", "Unidad", "Rack-B2-01-B", "DUA-2026-00102", '<span class="badge badge-retenido">Retenido</span>'],
+          ["BOD-02", "Bodega de Retención Fiscal y Custodia 2", "China (CN)", "PROD-TV-003", "Smart TV LG OLED 65 pulgadas 4K UHD", "50.00", "Unidad", "Rack-B2-02-C", "DUA-2026-00106", '<span class="badge badge-retenido">Retenido</span>'],
+          ["BOD-02", "Bodega de Retención Fiscal y Custodia 2", "China (CN)", "PROD-CAL-009", "Zapatos de seguridad industrial punta de acero", "595.00", "Unidad", "Rack-B2-03-A", "DUA-2026-00110", '<span class="badge badge-retenido">Retenido</span>']
+        ]
       },
       2: {
-        q: "¿Qué mercancías de China siguen retenidas en la bodega 2?",
-        thought: "Debo realizar un JOIN entre inventario, bodega, producto, declaracion_aduanera y pais, filtrando por b.codigo_bodega = 'BOD-02', p.nombre = 'China' y inv.estado_stock = 'Retenido'.",
-        sql: "SELECT prod.descripcion, inv.cantidad_actual, prod.unidad_medida, d.numero_dua \nFROM inventario inv \nJOIN bodega b ON inv.id_bodega = b.id_bodega \nJOIN producto prod ON inv.id_producto = prod.id_producto \nJOIN declaracion_aduanera d ON inv.id_declaracion = d.id_declaracion \nJOIN pais p ON d.id_pais_origen = p.id_pais \nWHERE b.codigo_bodega = 'BOD-02' AND p.nombre = 'China' AND inv.estado_stock = 'Retenido';",
-        answer: "Actualmente se encuentran retenidas en la <strong>Bodega 2 (Retención y Custodia)</strong> cuatro cargamentos provenientes de <strong>China</strong>:<br>• <strong>100 Laptops Lenovo ThinkPad T14</strong> (DUA-2026-00101)<br>• <strong>100 Smartphones Samsung Galaxy S24 Ultra</strong> (DUA-2026-00102)<br>• <strong>50 Smart TVs LG OLED 65\" 4K</strong> (DUA-2026-00106)<br>• <strong>595 Pares de Zapatos de Seguridad Industrial</strong> (DUA-2026-00110)<br>Total: <strong>845 unidades</strong> bajo custodia preventiva por discrepancias de serie o aforo de marcas."
+        title: "Liquidación y Conteo de Declaraciones Registradas por Régimen",
+        subtitle: "Período: 01 de Octubre de 2026 al 31 de Octubre de 2026",
+        headers: ["Régimen Aduanero", "Total Declaraciones", "Valor FOB Acumulado (USD)", "Aranceles Liquidados (USD)", "Valor Promedio por Trámite"],
+        rows: [
+          ["Importacion Definitiva", "11", "$814,250.00", "$116,662.50", "$74,022.73"],
+          ["Deposito Aduanero", "1", "$28,800.00", "$8,640.00", "$28,800.00"],
+          ["Transito Aduanero", "1", "$45,000.00", "$0.00", "$45,000.00"],
+          ["Exportacion Definitiva", "1", "$72,000.00", "$0.00", "$72,000.00"]
+        ]
       },
       3: {
-        q: "¿Cuál es el país de origen con más contenedores recibidos?",
-        thought: "Consulto la tabla contenedor vinculada a declaracion_aduanera y pais, agrupando por pais.nombre con COUNT(id_contenedor) descendente.",
-        sql: "SELECT p.nombre AS pais, COUNT(c.id_contenedor) AS total_contenedores, SUM(c.peso_bruto_kg) AS peso_total \nFROM contenedor c \nJOIN declaracion_aduanera d ON c.id_declaracion = d.id_declaracion \nJOIN pais p ON d.id_pais_origen = p.id_pais \nGROUP BY p.nombre \nORDER BY total_contenedores DESC \nLIMIT 1;",
-        answer: "El país con mayor volumen de recepción es <strong>China</strong> con un total de <strong>6 contenedores recibidos</strong> (4 de 40ft y 2 de 20ft), acumulando <strong>98,550 kg</strong> de peso bruto fiscalizado en los muelles portuarios."
+        title: "Consolidado de Contenedores y Carga Bruta por País de Origen",
+        subtitle: "Agrupación acumulada según puerto de embarque declarado",
+        headers: ["País de Origen", "Código ISO", "Total Contenedores", "Tipo de Unidades", "Peso Bruto Total (Kg)", "Peso Promedio (Kg)"],
+        rows: [
+          ["China", "CN", "6", "4x40ft HC, 2x20ft Dry", "98,550.00", "16,425.00"],
+          ["Estados Unidos", "US", "3", "2x40ft Dry, 1x40ft Reefer", "68,000.00", "22,666.67"],
+          ["Japón", "JP", "1", "1x40ft Flat Rack", "27,800.00", "27,800.00"],
+          ["Alemania", "DE", "1", "1x20ft Dry", "16,800.00", "16,800.00"],
+          ["Brasil", "BR", "1", "1x20ft Open Top", "26,900.00", "26,900.00"],
+          ["Chile", "CL", "1", "1x40ft Reefer", "18,900.00", "18,900.00"],
+          ["Colombia", "CO", "1", "1x40ft Dry", "14,300.00", "14,300.00"],
+          ["Corea del Sur", "KR", "1", "1x40ft High Cube", "17,800.00", "17,800.00"]
+        ]
       },
       4: {
-        q: "¿Qué importador ha declarado el mayor valor total en mercancías?",
-        thought: "Agrupo importador_exportador y declaracion_aduanera por operador, sumando total_fob_usd con ORDER BY DESC LIMIT 1.",
-        sql: "SELECT op.nombre_razon_social, op.nit_ruc, SUM(d.total_fob_usd) AS total_fob \nFROM importador_exportador op \nJOIN declaracion_aduanera d ON op.id_operador = d.id_operador \nGROUP BY op.id_operador, op.nombre_razon_social, op.nit_ruc \nORDER BY total_fob DESC \nLIMIT 1;",
-        answer: "El operador con mayor valor declarado es <strong>Automotriz Central S.A.</strong> (NIT: J0310001890321) con un valor total FOB declarado de <strong>$285,000.00 USD</strong> y $57,000.00 USD en tributos pagados por importación de vehículos Toyota Hilux."
+        title: "Ranking de Operadores de Comercio Exterior por Volumen FOB Declarado",
+        subtitle: "Top 5 Importadores con mayor facturación aduanera registrada",
+        headers: ["Razón Social del Operador", "Documento Fiscal (NIT/RUC)", "Calificación de Riesgo", "Cantidad DUA", "Total Declarado FOB (USD)", "Tributos Pagados (USD)"],
+        rows: [
+          ["Automotriz Central S.A.", "J0310001890321", '<span class="badge badge-neutral">Medio</span>', "1", "$285,000.00", "$57,000.00"],
+          ["ElectroMega Retailers S.A.", "J0310001890654", '<span class="badge badge-neutral">Medio</span>', "2", "$164,500.00", "$0.00"],
+          ["Renovable Energy Systems Corp", "J0310001892324", '<span class="badge badge-liberado">Bajo</span>', "1", "$115,000.00", "$0.00"],
+          ["Ferretería y Aceros Pesados S.A.", "J0310001891920", '<span class="badge badge-liberado">Bajo</span>', "1", "$97,000.00", "$4,850.00"],
+          ["TechGlobal Logistics S.A.", "J0310001890123", '<span class="badge badge-liberado">Bajo</span>', "1", "$85,000.00", "$0.00"]
+        ]
       },
       5: {
-        q: "¿Qué inspecciones tuvieron resultado 'con observaciones' y quién las realizó?",
-        thought: "Consulto inspeccion filtrando por resultado = 'Con observaciones', uniendo con funcionario para obtener inspector y su supervisor.",
-        sql: "SELECT i.numero_acta, d.numero_dua, f.nombre_completo AS inspector, sup.nombre_completo AS supervisor, i.observaciones \nFROM inspeccion i \nJOIN declaracion_aduanera d ON i.id_declaracion = d.id_declaracion \nJOIN funcionario f ON i.id_funcionario = f.id_funcionario \nLEFT JOIN funcionario sup ON f.id_supervisor = sup.id_funcionario \nWHERE i.resultado = 'Con observaciones';",
-        answer: "Se identificaron <strong>5 inspecciones con observaciones</strong> técnicas:<br>1. <strong>ACTA-2026-0089:</strong> Inspector Marvin Guido (Supervisora: Martha Jarquín) - Discrepancia en números de serie.<br>2. <strong>ACTA-2026-0090:</strong> Inspectora Cynthia Téllez - Densidad anómala en escáner de rayos X.<br>3. <strong>ACTA-2026-0094:</strong> Inspectora Lucía Peralta - Factura sin modelos especificados.<br>4. <strong>ACTA-2026-0098:</strong> Inspector Marvin Guido - Etiquetas de marca no acreditadas.<br>5. <strong>ACTA-2026-0104:</strong> Inspectora Lucía Peralta - Falta de certificado de homologación técnica."
+        title: "Actas de Inspección y Fiscalización con Observaciones Técnicas",
+        subtitle: "Relación de funcionarios actuantes y supervisores a cargo",
+        headers: ["N° Acta", "Fecha Aforo", "Modalidad", "Expediente DUA", "Inspector Responsable", "Supervisor Asignado", "Observaciones del Dictamen"],
+        rows: [
+          ["ACTA-2026-0089", "03/10/2026 10:30", "Física intrusiva", "DUA-2026-00101", "Lic. Marvin Antonio Guido", "Licda. Martha Lorena Jarquín", "Discrepancia en series y firmware. Carga remitida a Bodega 2."],
+          ["ACTA-2026-0090", "05/10/2026 14:15", "Física no intrusiva", "DUA-2026-00102", "Licda. Cynthia Iveth Téllez", "Licda. Martha Lorena Jarquín", "Densidad irregular en inspección por rayos X. Requiere aforo técnico."],
+          ["ACTA-2026-0094", "13/10/2026 13:10", "Física no intrusiva", "DUA-2026-00106", "Licda. Lucía Amanda Peralta", "Licda. Martha Lorena Jarquín", "Factura comercial carece de desglose de modelos OLED específicos."],
+          ["ACTA-2026-0098", "19/10/2026 14:50", "Física intrusiva", "DUA-2026-00110", "Lic. Marvin Antonio Guido", "Licda. Martha Lorena Jarquín", "Etiquetas de calzado deportivo no coinciden con registro de marca."],
+          ["ACTA-2026-0104", "29/09/2026 11:30", "Física no intrusiva", "DUA-2026-00116", "Licda. Lucía Amanda Peralta", "Licda. Martha Lorena Jarquín", "Falta presentar certificación de homologación técnica para inversores."]
+        ]
       },
       6: {
-        q: "¿Cuánto stock queda del producto Laptop ThinkPad en todas las bodegas?",
-        thought: "Hago JOIN entre inventario, producto y bodega buscando el SKU PROD-LAP-001 o descripción 'Laptop ThinkPad'.",
-        sql: "SELECT b.codigo_bodega, b.nombre, inv.cantidad_actual, inv.estado_stock \nFROM inventario inv \nJOIN producto prod ON inv.id_producto = prod.id_producto \nJOIN bodega b ON inv.id_bodega = b.id_bodega \nWHERE prod.codigo_sku = 'PROD-LAP-001';",
-        answer: "Del producto <strong>Laptop Lenovo ThinkPad T14 Gen 4 (SKU: PROD-LAP-001)</strong> se registra una existencia de <strong>100 unidades</strong>, ubicadas en la <strong>Bodega 2 (Retención Fiscal y Custodia)</strong> en el pasillo <code>Rack-B2-01-A</code> bajo estado <strong>Retenido</strong>."
+        title: "Inventario Físico Consolidado por Producto en Depósitos Aduaneros",
+        subtitle: "Existencias en tiempo real y asignación de espacio en estanterías",
+        headers: ["Código SKU", "Descripción del Bien", "Partida Arancelaria", "Depósito Asignado", "Ubicación Física", "Existencia", "Unidad", "Condición"],
+        rows: [
+          ["PROD-LAP-001", "Laptop Lenovo ThinkPad T14 Gen 4 i7", "8471.30.00", "BOD-02 (Retención Fiscal)", "Rack-B2-01-A", "100.00", "Unidad", '<span class="badge badge-retenido">Retenido</span>'],
+          ["PROD-PHN-002", "Smartphone Samsung Galaxy S24 Ultra", "8517.13.00", "BOD-02 (Retención Fiscal)", "Rack-B2-01-B", "100.00", "Unidad", '<span class="badge badge-retenido">Retenido</span>'],
+          ["PROD-AUTO-004", "Toyota Hilux Doble Cabina 4x4 Diésel", "8703.23.00", "BOD-13 (Patio Automotriz)", "Patio-Norte-Fila-3", "10.00", "Unidad", '<span class="badge badge-liberado">Liberado</span>'],
+          ["PROD-MED-005", "Amoxicilina + Ác. Clavulánico 875/125mg", "3004.90.99", "BOD-10 (Depósito Farma)", "Camara-Med-02", "2,500.00", "Caja", '<span class="badge badge-liberado">Liberado</span>'],
+          ["PROD-SOL-010", "Panel Solar Monocristalino 550W", "8541.43.00", "BOD-15 (Almacén Solar)", "Nave-Solar-Est-4", "1,000.00", "Unidad", '<span class="badge badge-liberado">Liberado</span>'],
+          ["PROD-VAR-013", "Varilla Acero Corrugado Grado 60 1/2\"", "7214.20.00", "BOD-09 (Graneles Pesados)", "Patio-Aceros-G2", "2,000.00", "Unidad", '<span class="badge badge-retenido">Retenido</span>']
+        ]
       },
       7: {
-        q: "¿Qué capítulos arancelarios generan la mayor recaudación fiscal?",
-        thought: "Agrupo por categoria_arancelaria.capitulo sumando arancel_aplicado_usd en detalle_declaracion.",
-        sql: "SELECT cat.capitulo, cat.descripcion_oficial, SUM(det.arancel_aplicado_usd) AS recaudacion \nFROM detalle_declaracion det \nJOIN producto prod ON det.id_producto = prod.id_producto \nJOIN categoria_arancelaria cat ON prod.id_categoria = cat.id_categoria \nGROUP BY cat.capitulo, cat.descripcion_oficial \nORDER BY recaudacion DESC \nLIMIT 3;",
-        answer: "El capítulo con mayor recaudación arancelaria es el <strong>Capítulo 87 (Automóviles y Vehículos)</strong> con <strong>$57,000.00 USD</strong> recaudados, seguido del <strong>Capítulo 10 (Arroz y Granos)</strong> con <strong>$34,200.00 USD</strong> debido al arancel de protección del 45%."
+        title: "Recaudación Tributaria Desglosada por Capítulo del Sistema Armonizado",
+        subtitle: "Gravámenes ad-valorem aplicados a las importaciones definitivas",
+        headers: ["Capítulo SA", "Partida Oficial", "Descripción de la Nomenclatura", "Base Imponible FOB (USD)", "Tasa Arancelaria", "Monto Recaudado (USD)"],
+        rows: [
+          ["87", "8703.23.00", "Automóviles de turismo diésel > 1500cc pero <= 3000cc", "$285,000.00", "20.00%", "$57,000.00"],
+          ["10", "1006.30.00", "Arroz semiblanqueado o blanqueado, incluso pulido", "$76,000.00", "45.00%", "$34,200.00"],
+          ["85", "8528.72.00", "Aparatos receptores de televisión en colores plana", "$60,000.00", "15.00%", "$9,000.00"],
+          ["22", "2204.21.00", "Vino de uvas frescas en recipientes <= 2 litros", "$28,800.00", "30.00%", "$8,640.00"],
+          ["29", "2933.39.00", "Compuestos heterocíclicos de nitrógeno (Químicos)", "$48,000.00", "10.00%", "$4,800.00"],
+          ["72", "7214.20.00", "Barras de hierro o acero corrugadas para construcción", "$97,000.00", "5.00%", "$4,850.00"]
+        ]
       },
       8: {
-        q: "¿Qué movimientos de traslado y salida se han efectuado?",
-        thought: "Consulto movimiento_inventario donde tipo_movimiento IN ('Salida por Levante', 'Traslado Interno') con funcionario autorizador.",
-        sql: "SELECT m.fecha_movimiento, m.tipo_movimiento, prod.descripcion, m.cantidad, f.nombre_completo AS autorizador \nFROM movimiento_inventario m \nJOIN inventario inv ON m.id_inventario = inv.id_inventario \nJOIN producto prod ON inv.id_producto = prod.id_producto \nJOIN funcionario f ON m.autorizado_por = f.id_funcionario \nWHERE m.tipo_movimiento != 'Ingreso Inicial' \nORDER BY m.fecha_movimiento DESC \nLIMIT 5;",
-        answer: "Se auditaron <strong>8 movimientos de salida y traslado</strong> recientes autorizados por la Dirección de Operaciones, destacando la salida por levante de 10 camionetas Toyota, 2,500 cajas de medicamentos, 1,000 paneles solares y el traslado preventivo de 50 inversores hacia Bodega 2."
+        title: "Registro de Trazabilidad y Control de Movimientos de Almacén",
+        subtitle: "Auditoría de despachos, traslados internos y custodias judiciales",
+        headers: ["N° Control", "Fecha/Hora", "Tipo de Movimiento", "Descripción de Mercancía", "Cantidad", "Origen", "Destino", "Funcionario Autorizador", "Justificación Legal"],
+        rows: [
+          ["MOV-003", "06/10/2026 10:00", "Salida por Levante", "Toyota Hilux Doble Cabina 4x4", "10.00 Uds", "BOD-13", "Exterior / Cliente", "Ing. Gabriel Alejandro Morales", "Cancelación total tributos DUA-103."],
+          ["MOV-005", "11/10/2026 08:30", "Salida por Levante", "Amoxicilina 875/125mg Caja x20", "2,500.00 Cajas", "BOD-10", "Exterior / Cliente", "Licda. Martha Lorena Jarquín", "Canal verde con registro MINSA."],
+          ["MOV-008", "16/10/2026 09:00", "Salida por Levante", "Panel Solar Monocristalino 550W", "1,000.00 Uds", "BOD-15", "Exterior / Cliente", "Licda. Martha Lorena Jarquín", "Exención fiscal Ley Energías Renovables."],
+          ["MOV-012", "21/10/2026 18:00", "Retiro por Decomiso", "Camisetas de punto algodón", "280.00 Cajas", "BOD-01", "BOD-12 (Judicial)", "Abog. Tatiana Milagros Rizo", "Resolución aduanera por marcas apócrifas."],
+          ["MOV-016", "01/10/2026 09:30", "Traslado Interno", "Inversor Solar Híbrido 10kW", "50.00 Uds", "BOD-01", "BOD-02 (Custodia)", "Ing. Silvio José Gutiérrez", "Falta certificado de homologación técnica."]
+        ]
       }
     };
 
-    function askQuestion(id) {
-      const item = QA_DATA[id];
-      if (!item) return;
-      appendUserMsg(item.q);
-      setTimeout(() => {
-        appendAiResponse(item.thought, item.sql, item.answer);
-      }, 400);
+    function loadReport(id, btn) {
+      document.querySelectorAll('.query-item').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      const data = REPORTS_DATABASE[id];
+      if (!data) return;
+
+      document.getElementById('reportHeader').innerText = data.title;
+      document.getElementById('reportSubHeader').innerText = data.subtitle;
+      document.getElementById('reportMeta').innerText = "Registros listados: " + data.rows.length + " tuplas";
+
+      const table = document.getElementById('dataTable');
+      let html = "<thead><tr>";
+      data.headers.forEach(h => {
+        html += "<th>" + h + "</th>";
+      });
+      html += "</tr></thead><tbody>";
+
+      data.rows.forEach(r => {
+        html += "<tr>";
+        r.forEach((cell, idx) => {
+          const isNumeric = cell.startsWith("$") || cell.endsWith("%") || !isNaN(cell.replace(/,/g, ''));
+          const alignClass = isNumeric && !cell.includes("<") ? "mono text-right" : "";
+          html += "<td class='" + alignClass + "'>" + cell + "</td>";
+        });
+        html += "</tr>";
+      });
+      html += "</tbody>";
+
+      table.innerHTML = html;
     }
 
-    function sendCustomMessage() {
-      const input = document.getElementById('chatInput');
-      const val = input.value.trim();
-      if (!val) return;
-      appendUserMsg(val);
-      input.value = '';
-      setTimeout(() => {
-        // Fallback intelligent query parser
-        appendAiResponse(
-          "Analizando intención en lenguaje natural: '" + val + "'. Mapeando a tablas relacionales de aduana.",
-          "SELECT * FROM inventario inv JOIN producto p ON inv.id_producto = p.id_producto WHERE inv.estado_stock = 'Retenido' LIMIT 5;",
-          "He consultado la base de datos de aduana. El sistema cuenta con 16 declaraciones registradas, 16 contenedores activos y 845 unidades retenidas en custodia preventiva en la Bodega 2."
-        );
-      }, 500);
-    }
-
-    function appendUserMsg(text) {
-      const body = document.getElementById('chatBody');
-      const div = document.createElement('div');
-      div.className = 'msg msg-user';
-      div.innerText = text;
-      body.appendChild(div);
-      body.scrollTop = body.scrollHeight;
-    }
-
-    function appendAiResponse(thought, sql, answer) {
-      const body = document.getElementById('chatBody');
-      const div = document.createElement('div');
-      div.className = 'msg msg-ai';
-      div.innerHTML = `
-        <div class="thought-box">&#x1F9E0; <strong>Razonamiento ReAct:</strong> ${thought}</div>
-        <div class="sql-preview">&#x1F50D; <strong>Consulta SQL Generada:</strong>\n${sql}</div>
-        <div>${answer}</div>
-      `;
-      body.appendChild(div);
-      body.scrollTop = body.scrollHeight;
-    }
+    // Cargar reporte 1 al inicio
+    loadReport(1, null);
   </script>
 </body>
 </html>
