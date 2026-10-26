@@ -1,3 +1,5 @@
+
+
 # Laboratorio #3: Sistema de Inventario Aduanero
 ## Base de Datos Relacional y Agente de Inteligencia Artificial con n8n
 

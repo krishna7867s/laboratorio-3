@@ -1,3 +1,14 @@
+-- ============================================================================
+-- LABORATORIO #3: SISTEMA DE INVENTARIO ADUANERO
+-- ASIGNATURA: Bases de Datos
+-- INTEGRANTE: Krishna Moya Cervantes
+-- GESTOR UTILIZADO: PostgreSQL 16 (Compatible con Neon / Supabase / Local)
+-- FECHA: Octubre 2026
+-- DESCRIPCIÓN: Script integral de creación de esquema en 3FN, llaves primarias,
+--              llaves foráneas, restricciones avanzadas, datos de prueba (16+ por tabla),
+--              consultas analíticas del negocio y configuración de usuario de solo lectura.
+-- ============================================================================
+
 DROP TABLE IF EXISTS movimiento_inventario CASCADE;
 DROP TABLE IF EXISTS inventario CASCADE;
 DROP TABLE IF EXISTS inspeccion CASCADE;
